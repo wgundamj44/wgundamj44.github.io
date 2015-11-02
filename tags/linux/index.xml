@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Linux on Notes of wgundamj44</title>
-    <link>http://118.67.96.51:8000/tags/linux/</link>
+    <link>http://wgundamj44.github.io/tags/linux/</link>
     <description>Recent content in Linux on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="http://118.67.96.51:8000/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://wgundamj44.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>The meaning of top command</title>
-      <link>http://118.67.96.51:8000/post/2014-12-02-meaning-of-top/</link>
+      <link>http://wgundamj44.github.io/post/2014-12-02-meaning-of-top/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2014-12-02-meaning-of-top/</guid>
+      <guid>http://wgundamj44.github.io/post/2014-12-02-meaning-of-top/</guid>
       <description>
 
 &lt;p&gt;Here is a snapshot of top command:&lt;/p&gt;

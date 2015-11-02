@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Javascript Html on Notes of wgundamj44</title>
-    <link>http://118.67.96.51:8000/tags/javascript-html/</link>
+    <link>http://wgundamj44.github.io/tags/javascript-html/</link>
     <description>Recent content in Javascript Html on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="http://118.67.96.51:8000/tags/javascript-html/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://wgundamj44.github.io/tags/javascript-html/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>viewport, window size and screen size in html</title>
-      <link>http://118.67.96.51:8000/post/2015-06-23-viewport-etc-in-html/</link>
+      <link>http://wgundamj44.github.io/post/2015-06-23-viewport-etc-in-html/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-06-23-viewport-etc-in-html/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-06-23-viewport-etc-in-html/</guid>
       <description>
 
 &lt;p&gt;Today I read about an &lt;a href=&#34;http://www.quirksmode.org/mobile/viewports.html&#34;&gt;article&lt;/a&gt; about viewport, and made some notes.&lt;/p&gt;
@@ -50,11 +50,11 @@ One important difference between window size and viewport is that, the viewport 
 we move or zoom layout viewport, so that the part shown in the window is changed, and we can see differen parts of layout viewport. As shown below:
 visual viewport is part of full page:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://118.67.96.51:8000/2015-06-23-visualviewport.jpg&#34; alt=&#34;visual viewport&#34; /&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://wgundamj44.github.io/2015-06-23-visualviewport.jpg&#34; alt=&#34;visual viewport&#34; /&gt;.&lt;/p&gt;
 
 &lt;p&gt;layout viewport is whole page, only part of which can be seen:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://118.67.96.51:8000/2015-06-23-layoutview.jpg&#34; alt=&#34;layout viewport&#34; /&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://wgundamj44.github.io/2015-06-23-layoutview.jpg&#34; alt=&#34;layout viewport&#34; /&gt;.&lt;/p&gt;
 
 &lt;p&gt;In recap, the visible part is the window in desktop world, while the whole part is the viewport in desktop world.&lt;/p&gt;
 

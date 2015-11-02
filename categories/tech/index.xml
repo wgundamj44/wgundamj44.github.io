@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tech on Notes of wgundamj44</title>
-    <link>http://118.67.96.51:8000/categories/tech/</link>
+    <link>http://wgundamj44.github.io/categories/tech/</link>
     <description>Recent content in Tech on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 23 Oct 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://118.67.96.51:8000/categories/tech/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://wgundamj44.github.io/categories/tech/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Solve pylint import error in Django</title>
-      <link>http://118.67.96.51:8000/post/2015-10-23-pylint-import-error-in-django/</link>
+      <link>http://wgundamj44.github.io/post/2015-10-23-pylint-import-error-in-django/</link>
       <pubDate>Fri, 23 Oct 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-10-23-pylint-import-error-in-django/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-10-23-pylint-import-error-in-django/</guid>
       <description>&lt;p&gt;I&amp;rsquo;m using emacs flycheck with pylint to lint my Django project. Everything goes well except I constantly reports
 import error for my user-defined modules. The system modules are ok, the Django modules are ok too. We know that python uses
 sys.path to search for modules, so the problem must be python interpreter sees different sys.path value to pylint.&lt;/p&gt;
@@ -40,10 +40,10 @@ init-hook=&#39;import sys; sys.path = [&amp;quot;/base/folder/of/my/project&amp;
     
     <item>
       <title>Some project notes(4)</title>
-      <link>http://118.67.96.51:8000/post/2015-09-30-project-node-4/</link>
+      <link>http://wgundamj44.github.io/post/2015-09-30-project-node-4/</link>
       <pubDate>Wed, 30 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-09-30-project-node-4/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-09-30-project-node-4/</guid>
       <description>
 
 &lt;h2 id=&#34;boostrap-of-django:b5247f547e103bba4bcf33f457074e2b&#34;&gt;boostrap of django&lt;/h2&gt;
@@ -70,7 +70,7 @@ entry is moudle name, then &lt;code&gt;create&lt;/code&gt; will try to import it
 
 &lt;h2 id=&#34;from-request-to-view:b5247f547e103bba4bcf33f457074e2b&#34;&gt;From request to view&lt;/h2&gt;
 
-&lt;p&gt;We start the story from &lt;code&gt;django.core.handlers.wsgi.WSGIHandler&lt;/code&gt;, from experience of werkzeug, we know that this handler is for the handling of request. And it has our old friend &lt;code&gt;__call__(self, environ, start_response)&lt;/code&gt; &amp;ndash; a standard WSGI app function, as mentioned in &lt;a href=&#34;http://118.67.96.51:8000/post/2015-05-21-http-service-in-python/&#34;&gt;this post&lt;/a&gt;. In this function, it does two things: generate a request object, get a response object from request.&lt;/p&gt;
+&lt;p&gt;We start the story from &lt;code&gt;django.core.handlers.wsgi.WSGIHandler&lt;/code&gt;, from experience of werkzeug, we know that this handler is for the handling of request. And it has our old friend &lt;code&gt;__call__(self, environ, start_response)&lt;/code&gt; &amp;ndash; a standard WSGI app function, as mentioned in &lt;a href=&#34;http://wgundamj44.github.io/post/2015-05-21-http-service-in-python/&#34;&gt;this post&lt;/a&gt;. In this function, it does two things: generate a request object, get a response object from request.&lt;/p&gt;
 
 &lt;h3 id=&#34;generate-a-request:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Generate a request&lt;/h3&gt;
 
@@ -84,10 +84,10 @@ entry is moudle name, then &lt;code&gt;create&lt;/code&gt; will try to import it
     
     <item>
       <title>Some project notes(3)</title>
-      <link>http://118.67.96.51:8000/post/2015-09-26-project-note-3/</link>
+      <link>http://wgundamj44.github.io/post/2015-09-26-project-note-3/</link>
       <pubDate>Sat, 26 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-09-26-project-note-3/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-09-26-project-note-3/</guid>
       <description>
 
 &lt;h2 id=&#34;transaction-in-django:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Transaction in Django&lt;/h2&gt;
@@ -191,10 +191,10 @@ About metaclass, there&amp;rsquo;s an excellent article in &lt;a href=&#34;http:
     
     <item>
       <title>Some project notes(2)</title>
-      <link>http://118.67.96.51:8000/post/2015-08-13-project-note2/</link>
+      <link>http://wgundamj44.github.io/post/2015-08-13-project-note2/</link>
       <pubDate>Thu, 13 Aug 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-08-13-project-note2/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-08-13-project-note2/</guid>
       <description>
 
 &lt;h2 id=&#34;develop-enviroment-with-docker:e7d43dfc46b4cac080bf58b0a0e5c283&#34;&gt;Develop enviroment with Docker&lt;/h2&gt;
@@ -265,10 +265,10 @@ Note that the &amp;ndash;service-ports option  makes the port mapping of web ava
     
     <item>
       <title>Some project notes(1)</title>
-      <link>http://118.67.96.51:8000/post/2015-08-12-project-note/</link>
+      <link>http://wgundamj44.github.io/post/2015-08-12-project-note/</link>
       <pubDate>Wed, 12 Aug 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-08-12-project-note/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-08-12-project-note/</guid>
       <description>
 
 &lt;p&gt;I&amp;rsquo;ve been doing my current project for two months, and I feel it is time for some notes.&lt;/p&gt;
@@ -356,10 +356,10 @@ The werid part is that, when I delete the row with value c, the resulting list i
     
     <item>
       <title>Some notes on django</title>
-      <link>http://118.67.96.51:8000/post/2015-08-04-memo-on-django/</link>
+      <link>http://wgundamj44.github.io/post/2015-08-04-memo-on-django/</link>
       <pubDate>Tue, 04 Aug 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-08-04-memo-on-django/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-08-04-memo-on-django/</guid>
       <description>
 
 &lt;p&gt;Recently I&amp;rsquo;ve been using Django in my projects. Here are some notes and pitfalls.&lt;/p&gt;
@@ -379,10 +379,10 @@ domain, then po files of python and templates will be loaded, which may not be w
     
     <item>
       <title>How much memory does PHP array take?</title>
-      <link>http://118.67.96.51:8000/post/2014-05-01-php-memory/</link>
+      <link>http://wgundamj44.github.io/post/2014-05-01-php-memory/</link>
       <pubDate>Fri, 01 May 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2014-05-01-php-memory/</guid>
+      <guid>http://wgundamj44.github.io/post/2014-05-01-php-memory/</guid>
       <description>
 
 &lt;p&gt;I&amp;rsquo;ve read an interesting article talking about how much memory does PHP array take.
@@ -513,10 +513,10 @@ Now we get 48 bytes for each varibale.&lt;/p&gt;
     
     <item>
       <title>About flycheck</title>
-      <link>http://118.67.96.51:8000/post/2014-11-17-flycheck/</link>
+      <link>http://wgundamj44.github.io/post/2014-11-17-flycheck/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2014-11-17-flycheck/</guid>
+      <guid>http://wgundamj44.github.io/post/2014-11-17-flycheck/</guid>
       <description>
 
 &lt;p&gt;Recently I replaced my emacs on-the-fly syntax checker from flymake to flycheck. Flycheck is more well designed so that additional checker can be used without
@@ -580,10 +580,10 @@ specify the standard of phpcs, and &lt;code&gt;flycheck-php-phpcs-executable&lt;
     
     <item>
       <title>Set up PHP enviroment with Docker</title>
-      <link>http://118.67.96.51:8000/post/2015-04-15-set-php-enviroment-with-docker/</link>
+      <link>http://wgundamj44.github.io/post/2015-04-15-set-php-enviroment-with-docker/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-04-15-set-php-enviroment-with-docker/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-04-15-set-php-enviroment-with-docker/</guid>
       <description>
 
 &lt;p&gt;Set up PHP develop eviroment with docker.&lt;/p&gt;

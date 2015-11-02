@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Vagrant on Notes of wgundamj44</title>
-    <link>http://118.67.96.51:8000/tags/vagrant/</link>
+    <link>http://wgundamj44.github.io/tags/vagrant/</link>
     <description>Recent content in Vagrant on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="http://118.67.96.51:8000/tags/vagrant/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://wgundamj44.github.io/tags/vagrant/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Development Enviroment with Vagrant</title>
-      <link>http://118.67.96.51:8000/post/2014-09-27-dev-with-vagrant/</link>
+      <link>http://wgundamj44.github.io/post/2014-09-27-dev-with-vagrant/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2014-09-27-dev-with-vagrant/</guid>
+      <guid>http://wgundamj44.github.io/post/2014-09-27-dev-with-vagrant/</guid>
       <description>
 
 &lt;h1 id=&#34;goal:ac1b67bb1caef5475448797abf87331d&#34;&gt;Goal&lt;/h1&gt;

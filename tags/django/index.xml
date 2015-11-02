@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Django on Notes of wgundamj44</title>
-    <link>http://118.67.96.51:8000/tags/django/</link>
+    <link>http://wgundamj44.github.io/tags/django/</link>
     <description>Recent content in Django on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 23 Oct 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://118.67.96.51:8000/tags/django/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://wgundamj44.github.io/tags/django/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Solve pylint import error in Django</title>
-      <link>http://118.67.96.51:8000/post/2015-10-23-pylint-import-error-in-django/</link>
+      <link>http://wgundamj44.github.io/post/2015-10-23-pylint-import-error-in-django/</link>
       <pubDate>Fri, 23 Oct 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-10-23-pylint-import-error-in-django/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-10-23-pylint-import-error-in-django/</guid>
       <description>&lt;p&gt;I&amp;rsquo;m using emacs flycheck with pylint to lint my Django project. Everything goes well except I constantly reports
 import error for my user-defined modules. The system modules are ok, the Django modules are ok too. We know that python uses
 sys.path to search for modules, so the problem must be python interpreter sees different sys.path value to pylint.&lt;/p&gt;
@@ -40,10 +40,10 @@ init-hook=&#39;import sys; sys.path = [&amp;quot;/base/folder/of/my/project&amp;
     
     <item>
       <title>Some project notes(4)</title>
-      <link>http://118.67.96.51:8000/post/2015-09-30-project-node-4/</link>
+      <link>http://wgundamj44.github.io/post/2015-09-30-project-node-4/</link>
       <pubDate>Wed, 30 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-09-30-project-node-4/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-09-30-project-node-4/</guid>
       <description>
 
 &lt;h2 id=&#34;boostrap-of-django:b5247f547e103bba4bcf33f457074e2b&#34;&gt;boostrap of django&lt;/h2&gt;
@@ -70,7 +70,7 @@ entry is moudle name, then &lt;code&gt;create&lt;/code&gt; will try to import it
 
 &lt;h2 id=&#34;from-request-to-view:b5247f547e103bba4bcf33f457074e2b&#34;&gt;From request to view&lt;/h2&gt;
 
-&lt;p&gt;We start the story from &lt;code&gt;django.core.handlers.wsgi.WSGIHandler&lt;/code&gt;, from experience of werkzeug, we know that this handler is for the handling of request. And it has our old friend &lt;code&gt;__call__(self, environ, start_response)&lt;/code&gt; &amp;ndash; a standard WSGI app function, as mentioned in &lt;a href=&#34;http://118.67.96.51:8000/post/2015-05-21-http-service-in-python/&#34;&gt;this post&lt;/a&gt;. In this function, it does two things: generate a request object, get a response object from request.&lt;/p&gt;
+&lt;p&gt;We start the story from &lt;code&gt;django.core.handlers.wsgi.WSGIHandler&lt;/code&gt;, from experience of werkzeug, we know that this handler is for the handling of request. And it has our old friend &lt;code&gt;__call__(self, environ, start_response)&lt;/code&gt; &amp;ndash; a standard WSGI app function, as mentioned in &lt;a href=&#34;http://wgundamj44.github.io/post/2015-05-21-http-service-in-python/&#34;&gt;this post&lt;/a&gt;. In this function, it does two things: generate a request object, get a response object from request.&lt;/p&gt;
 
 &lt;h3 id=&#34;generate-a-request:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Generate a request&lt;/h3&gt;
 
@@ -84,10 +84,10 @@ entry is moudle name, then &lt;code&gt;create&lt;/code&gt; will try to import it
     
     <item>
       <title>Some project notes(3)</title>
-      <link>http://118.67.96.51:8000/post/2015-09-26-project-note-3/</link>
+      <link>http://wgundamj44.github.io/post/2015-09-26-project-note-3/</link>
       <pubDate>Sat, 26 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://118.67.96.51:8000/post/2015-09-26-project-note-3/</guid>
+      <guid>http://wgundamj44.github.io/post/2015-09-26-project-note-3/</guid>
       <description>
 
 &lt;h2 id=&#34;transaction-in-django:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Transaction in Django&lt;/h2&gt;
