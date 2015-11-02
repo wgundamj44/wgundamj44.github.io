@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Javascript Html on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/javascript-html/</link>
+    <description>Recent content in Javascript Html on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="http://0.0.0.0/tags/javascript-html/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>viewport, window size and screen size in html</title>
+      <link>http://0.0.0.0/post/2015-06-23-viewport-etc-in-html/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-06-23-viewport-etc-in-html/</guid>
+      <description>
+
+&lt;p&gt;Today I read about an &lt;a href=&#34;http://www.quirksmode.org/mobile/viewports.html&#34;&gt;article&lt;/a&gt; about viewport, and made some notes.&lt;/p&gt;
+
+&lt;h2 id=&#34;in-desktop-world:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;In Desktop world&lt;/h2&gt;
+
+&lt;h3 id=&#34;device-pixels-and-css-pixels:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;device pixels and css pixels&lt;/h3&gt;
+
+&lt;p&gt;It turns out that, when we set css like &lt;code&gt;width:100px&lt;/code&gt;, we are setting css pixels. When zoom is 100%, 1 css pixels equals 1 device pixel. But when we zoom in, we can see the elements is larger, that is 1 css pixel becomes larger than 1 device pixel, so that brower can contain less elements. The opposite appies for zoom out. So when we doing zoom, we actually change the actuall size of css pixels.&lt;/p&gt;
+
+&lt;h3 id=&#34;screen-size:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;screen size&lt;/h3&gt;
+
+&lt;p&gt;We can get screen size with &lt;code&gt;screen.height, screen.width&lt;/code&gt;. They are invariant for the same device. In my mac air, it&amp;rsquo;s always 1366 * 768.&lt;/p&gt;
+
+&lt;h3 id=&#34;window-size:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;window size&lt;/h3&gt;
+
+&lt;p&gt;Window size is how much space the browser has for display of elements. Obviously if we shrink or strech our brower, it will become larger or smaller accordingly. We can ge window size with &lt;code&gt;window.innerHeight, window.innerHeight&lt;/code&gt;. This size &lt;strong&gt;includes&lt;/strong&gt; the scrollbar width.&lt;/p&gt;
+
+&lt;h3 id=&#34;scrolling-offset:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;scrolling offset&lt;/h3&gt;
+
+&lt;p&gt;This value indicates how much space have we scrolled. We can get the values with &lt;code&gt;window.pageXOffset, window.pageYOffset&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;viewport:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;viewport&lt;/h3&gt;
+
+&lt;p&gt;A viewport constrains(wraps) the html element, it is as larget as brower window.
+Its value can be obtained with &lt;code&gt;document.documentElement.clientWidth&lt;/code&gt;
+One important difference between window size and viewport is that, the viewport &lt;em&gt;doesn`t&lt;/em&gt; include scrollbar. In my brower, the former will be about 17 pixels larger than the latter.&lt;/p&gt;
+
+&lt;h2 id=&#34;in-mobile-world:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;In mobile world&lt;/h2&gt;
+
+&lt;h3 id=&#34;two-viewports:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;two viewports&lt;/h3&gt;
+
+&lt;p&gt;In mobile world, there are two viewports. One is visual viewport, which is the part of page which is currently shown on the screen, should be the same as device size. The other is layout viewport, which is the actual size of the page. Layout viewport can be obtained with &lt;code&gt;document.documentElement.clientWidth&lt;/code&gt;, the same functions from viewport in desktop world. On mobile device, it is like we watch layout viewport through a window(visual viewport),
+we move or zoom layout viewport, so that the part shown in the window is changed, and we can see differen parts of layout viewport. As shown below:
+visual viewport is part of full page:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://0.0.0.0/2015-06-23-visualviewport.jpg&#34; alt=&#34;visual viewport&#34; /&gt;.&lt;/p&gt;
+
+&lt;p&gt;layout viewport is whole page, only part of which can be seen:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://0.0.0.0/2015-06-23-layoutview.jpg&#34; alt=&#34;layout viewport&#34; /&gt;.&lt;/p&gt;
+
+&lt;p&gt;In recap, the visible part is the window in desktop world, while the whole part is the viewport in desktop world.&lt;/p&gt;
+
+&lt;h3 id=&#34;meta-viewport:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;meta:viewport&lt;/h3&gt;
+
+&lt;p&gt;In html we often see the line like this: &lt;code&gt;&amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width, initial-scale=1&amp;quot;&amp;gt;&lt;/code&gt;. What it`s done is setting the inital viewport to device-width, and scale to 1. As a result, when visited from mobile device, the page width will fit exactly to screen size.&lt;/p&gt;
+
+&lt;h3 id=&#34;media-query:008aa86d7799c4ce3f0c4a83540cc360&#34;&gt;media query&lt;/h3&gt;
+
+&lt;p&gt;Here comes media query, which we often see in bootstrap, &lt;code&gt;@media (max-width: 911px) { ... }&lt;/code&gt;. Based on MDN, the width &lt;strong&gt;width media feature describes the width of the rendering surface of the output device&lt;/strong&gt;. The width of rendering surface is ambigous here. On desktop chrome or safari, the width is without scrollbar, which makes it equals to viewport. On firefox or IE, the width is with scrollbar.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

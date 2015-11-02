@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Python Django on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/python-django/</link>
+    <description>Recent content in Python Django on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 04 Aug 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://0.0.0.0/tags/python-django/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Some notes on django</title>
+      <link>http://0.0.0.0/post/2015-08-04-memo-on-django/</link>
+      <pubDate>Tue, 04 Aug 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-08-04-memo-on-django/</guid>
+      <description>
+
+&lt;p&gt;Recently I&amp;rsquo;ve been using Django in my projects. Here are some notes and pitfalls.&lt;/p&gt;
+
+&lt;h3 id=&#34;how-to-use-i18n-with-javascript:de035a89148bb9c23379c3d4e290fd8b&#34;&gt;How to use i18n with javascript&lt;/h3&gt;
+
+&lt;p&gt;django&amp;rsquo; s translation also works for javascript. To make the .mo files available to js,
+we need to add some url rules, and also add that path to html files that needs loading translation files.&lt;/p&gt;
+
+&lt;p&gt;The only thing needs attention is that, when making translation files for js, we need to give &lt;code&gt;makemessages&lt;/code&gt; a
+&lt;code&gt;-d djangojs&lt;/code&gt; option, otherwise it won&amp;rsquo;t work. The generated file is with name djangojs.po compared to the normal name django.po.&lt;/p&gt;
+
+&lt;p&gt;In the &lt;code&gt;js_info_dict&lt;/code&gt; that is passed to &lt;code&gt;javascript_catalog&lt;/code&gt;, we need to specify the domain as &lt;code&gt;djangojs&lt;/code&gt;. It we specified &lt;code&gt;django&lt;/code&gt; as
+domain, then po files of python and templates will be loaded, which may not be what we want.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

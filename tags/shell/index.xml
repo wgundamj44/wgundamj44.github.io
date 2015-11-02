@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Shell on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/shell/</link>
+    <description>Recent content in Shell on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="http://0.0.0.0/tags/shell/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>About Grep Escape</title>
+      <link>http://0.0.0.0/post/2014-10-08-grep-escape/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2014-10-08-grep-escape/</guid>
+      <description>&lt;p&gt;What&amp;rsquo;s the difference with &lt;code&gt;grep &#39;$id\$&#39;&lt;/code&gt; and &lt;code&gt;grep \$id\$&lt;/code&gt;?&lt;/p&gt;
+
+&lt;p&gt;The first will match string $id$, and the second will match the string ends with $id.&lt;/p&gt;
+
+&lt;p&gt;It turns out that, there&amp;rsquo;re two level of escape here.&lt;/p&gt;
+
+&lt;p&gt;The first is shell quote, as &lt;code&gt;\&lt;/code&gt; is also special characters in shell,&lt;br /&gt;
+it will be interprated as an escapce character, and turns &lt;code&gt;\$&lt;/code&gt; into $ &lt;em&gt;BEFORE&lt;/em&gt; it is sent to grep,
+so grep will actually get $id$ as input.&lt;br /&gt;
+To it hehaves as we intended, we should use double slash &lt;code&gt;\\&lt;/code&gt;, shell will remove the first slash, and send the
+second to grep.&lt;br /&gt;
+To simplify things, use single quote is better choise, &lt;code&gt;&#39;$id$&#39;&lt;/code&gt; will tell shell that &lt;code&gt;$id$&lt;/code&gt; should be treated
+as raw string.&lt;/p&gt;
+
+&lt;p&gt;The second is escape of grep itself. $ is special only if it resides in the end of string. So the first $ will be interprated
+literally, the second should be escaped. To make grep treat input as fixed string, -F option is a better choice.&lt;/p&gt;
+
+&lt;p&gt;All the above considerations sum up, we get the final command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;grep -F &#39;$id$&#39;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

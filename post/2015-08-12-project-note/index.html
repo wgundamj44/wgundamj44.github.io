@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Some project notes(1)  &middot; Notes of wgundamj44</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="javascript, ">
+
+
+<meta property="og:title" content="Some project notes(1)  &middot; Notes of wgundamj44 ">
+<meta property="og:site_name" content="Notes of wgundamj44"/>
+<meta property="og:url" content="http://0.0.0.0/post/2015-08-12-project-note/" />
+<meta property="og:locale" content="en-us">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2015-08-12T00:00:00Z" />
+<meta property="og:article:modified_time" content="2015-08-12T00:00:00Z" />
+
+  
+    
+<meta property="og:article:tag" content="javascript">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Some project notes(1)" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="http://0.0.0.0/post/2015-08-12-project-note/" />
+<meta name="twitter:domain" content="http://0.0.0.0/">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Some project notes(1)",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2015-08-12",
+    "description": "",
+    "wordCount":  1099 
+  }
+</script>
+
+
+
+<link rel="canonical" href="http://0.0.0.0/post/2015-08-12-project-note/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://0.0.0.0/touch-icon-144-precomposed.png">
+<link href="http://0.0.0.0/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.15-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://0.0.0.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/style.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/highlight/solarized_light.css">
+
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="http://0.0.0.0/">
+  Notes of wgundamj44
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+
+  
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>Some project notes(1)
+</h1>
+
+  <div class="metas">
+<time datetime="2015-08-12">12 Aug, 2015</time>
+
+
+  
+  &middot; Read in about 6 min
+  &middot; (1099 Words)
+  <br>
+  
+<a class="label" href="http://0.0.0.0/tags/javascript">javascript</a>
+
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>I&rsquo;ve been doing my current project for two months, and I feel it is time for some notes.</p>
+
+<h2 id="try-out-react-in-frontend:b1745fd124132e9667744292102bd3ba">Try out react in frontend</h2>
+
+<p>The original front end is django template + jQuery + bootstrap. Without any framework to manage the code structure, there were nearly no reusable UI components. We had to implement every page from scratch. More importantly, without certain patterns, the implementations of front end logic differed greatly from one another even for similar logics.</p>
+
+<p>The project is a business management site, the pages are mainly the CRUD of different business objects, eg. a list for all the objects, a modal dialog for detail of an object, a modal for update or create object, a modal for delete confirm. It&rsquo;s clear that UI elements can be reused somehow. For example, the boostrap modal:</p>
+
+<pre><code class="language-html">&lt;div class=&quot;modal fade&quot;&gt;
+  &lt;div class=&quot;modal-dialog&quot;&gt;
+    &lt;div class=&quot;modal-content&quot;&gt;
+      &lt;div class=&quot;modal-header&quot;&gt;
+        &lt;button type=&quot;button&quot; class=&quot;close&quot; data-dismiss=&quot;modal&quot; aria-label=&quot;Close&quot;&gt;&lt;span aria-hidden=&quot;true&quot;&gt;&amp;times;&lt;/span&gt;&lt;/button&gt;
+        &lt;h4 class=&quot;modal-title&quot;&gt;Modal title&lt;/h4&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;modal-body&quot;&gt;
+        &lt;p&gt;One fine body&amp;hellip;&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;modal-footer&quot;&gt;
+        &lt;button type=&quot;button&quot; class=&quot;btn btn-default&quot; data-dismiss=&quot;modal&quot;&gt;Close&lt;/button&gt;
+        &lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot;&gt;Save changes&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;&lt;!-- /.modal-content --&gt;
+  &lt;/div&gt;&lt;!-- /.modal-dialog --&gt;
+&lt;/div&gt;&lt;!-- /.modal --&gt;
+</code></pre>
+
+<p>This structure is common among all objects, the difference is the title, the content and footer. The old way will be copy this structure, then write the contents in title, content and footer. Consider after copied this structure for near a hundred times, then one day we need to add a new css class in every modal&hellip; What a desperate work.. How about we write only one copy of this structure and generate the contents dynamicaly. With react, this is a very trival work.</p>
+
+<p>Another problem is that, as UI elements get more and more complex, the relation between elements will be hard to manage. For example, when radio button A is checked, textinput B should appear, button C should hide, button D should appear&hellip; And when button A lost its check, we should perform the reverse actions. This will get tedious and hard to understand.</p>
+
+<h4 id="data-binding:b1745fd124132e9667744292102bd3ba">data binding</h4>
+
+<p>To solve this problem, I think first we need to use data to drive the UI, instead of considering the relationship between UI elements. For the example above, bind radio A to a variable, then make related UI listen for state of variable and make change themselves. If one day, we deside to add new UI when A is checked, just make this UI listen for vairable, saving us the trouble of modifying the listeners of A. This way we removed the complex relations between UIs, as all the UIs are now bind to data. For our project, we use state of react components to hold the data, and update the underlying UI accordingly. We won&rsquo;t care which children will get changed when state changes, the children is responsible for themselves.</p>
+
+<h4 id="components:b1745fd124132e9667744292102bd3ba">components</h4>
+
+<p>Another thing I learned is that, when updatin UI, prefer function call to update DOM directly. For example, when click &lsquo;Detail&rsquo; button, we load some data and show a modal with the data displayed. A naive way is to use lots of <code>$(xxx).value(yyy)</code> or <code>$(xxx).find(xxx).prop('checked', true)</code> to update DOM. As we can see, this is not easy to understand at application level. A prefer way is, we create a class that represents the modal for detail. Then, we pass this class the data, and say:&ldquo;Hey, update your self&rdquo;. Although under the hood of this class, it does the same ugly things as the first approach, the application itself gets a lot cleaner, and the change of UI in modal won&rsquo;t break the application. With react, this get done natrually by passing properties to child component.</p>
+
+<p>After used react, our modal looks like this.</p>
+
+<pre><code class="language-html">React.createClass({
+  render: function() {
+    return (
+      &lt;div class=&quot;modal fade&quot;&gt;
+	&lt;div class=&quot;modal-dialog&quot;&gt;
+	  &lt;div class=&quot;modal-content&quot;&gt;
+	    &lt;div class=&quot;modal-header&quot;&gt;
+              &lt;button type=&quot;button&quot; class=&quot;close&quot; data-dismiss=&quot;modal&quot; aria-label=&quot;Close&quot;&gt;&lt;span aria-hidden=&quot;true&quot;&gt;&amp;times;&lt;/span&gt;&lt;/button&gt;
+              &lt;h4 class=&quot;modal-title&quot;&gt;{this.props.title}&lt;/h4&gt;
+	    &lt;/div&gt;
+	    &lt;div class=&quot;modal-body&quot;&gt;
+	      &lt;ChildContent data={this.state.data} /&gt;
+	    &lt;/div&gt;
+	    &lt;div class=&quot;modal-footer&quot;&gt;
+              &lt;button type=&quot;button&quot; class=&quot;btn btn-default&quot; data-dismiss=&quot;modal&quot;&gt;Close&lt;/button&gt;
+              &lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot; onClick={this.handleSubmit}&gt;Save changes&lt;/button&gt;
+	    &lt;/div&gt;
+	  &lt;/div&gt;&lt;!-- /.modal-content --&gt;
+	&lt;/div&gt;&lt;!-- /.modal-dialog --&gt;
+      &lt;/div&gt;&lt;!-- /.modal --&gt;
+    )
+  }
+});
+</code></pre>
+
+<p>We just pass data to child, and child will make the view done according to specific needs.</p>
+
+<h3 id="some-cavets-when-using-react:b1745fd124132e9667744292102bd3ba">some cavets when using react</h3>
+
+<h4 id="how-to-coexist-with-bootstrap-modal:b1745fd124132e9667744292102bd3ba">How to coexist with bootstrap-modal</h4>
+
+<p>Our project use bootstrap-modal, which comes with a ModalManager, so that modal can be stackable. But when doing this, it moves the modals away from original position and attach them to document. If we use react to generate modal, when it is shown, the react will fail with <code>Invariant Violation: findComponentRoot(..., .0.1.0): Unable to find element. This probably means the DOM was unexpectedly mutated.</code> It turns out that, outer program should not manipulate the DOM of react component directly. After some search, people say that, it doesn&rsquo;t matter if parents of react component is moved around. So instead of generating the whold modal with react, we first write <code>&lt;div class=&quot;modal&quot;&gt;&lt;/div&gt;</code> part with plain html, then we use react to generate <code>&lt;div class=&quot;modal-dialog&quot;&gt;&lt;/div&gt;</code>part, and mount it into modal. With this approach, the error of react gone away.</p>
+
+<h4 id="key-and-generated-list:b1745fd124132e9667744292102bd3ba">key and generated list</h4>
+
+<p>In react <a href="https://facebook.github.io/react/docs/multiple-components.html#dynamic-children">document</a>, it is said that <code>key</code> is needed to determine the child should be reused or destoryed. I didn&rsquo;t quite understand it until I ran into some wierd problem. My UI is a list of input representing a list of data eg. [a, b,c ,d]. We can delete a row, or add a new row.
+The werid part is that, when I delete the row with value c, the resulting list in UI will be [a, b, c] which is wrong, but the data of the state is correct with data [a, b, d]. That is always the last UI element gets deleted. When I look at the row, each row is with something like <code>data-reactid=&quot;.0.0.1.0.0.2.0&quot;</code>,  the last digit in the id is key(maybe..). It seems that if we don&rsquo;t allocate key, react will simple allocate 1, 2, 3, 4  as keys. When we delete c, the state changes so the UI repaints, again key 1, 2, 3 is allocated for remaining elements. React compares key, and think that element with 1, 2, 3 is unchanged and they are reused, only element with key 4 is removed. As the result, c remained while d went away. So I tried to allocate brand new keys for each state change, eg. [1, 2, 3, 4], then [5, 6, 7, 8]. So that there were no duplicate keys between state change. Then the id will looks like <code>data-reactid=&quot;.0.0.1.0.0.2.$1</code>, where $1 seems the key 1. And this solves the problem. But actually, it is a big waste as all the UI elements got repainted event they didn&rsquo;t change.</p>
+
+<h3 id="todo-automate-babel-with-webpack:b1745fd124132e9667744292102bd3ba">TODO: automate babel with webpack</h3>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="http://0.0.0.0/post/2015-08-04-memo-on-django/" title="Some notes on django">
+      Previous
+    </a>
+    
+
+    
+    <a class="next" href="http://0.0.0.0/post/2015-08-13-project-note2/" title="Some project notes(2)">
+      Next
+    </a>
+    
+
+  
+
+
+</div>
+
+  <div class="container comments">
+  <h2>Comments</h2>
+  
+
+</div>
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+
+</div>
+
+
+  
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="http://0.0.0.0/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+  </body>
+</html>
+

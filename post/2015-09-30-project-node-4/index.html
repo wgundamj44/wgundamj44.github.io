@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Some project notes(4)  &middot; Notes of wgundamj44</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="Django, ">
+
+
+<meta property="og:title" content="Some project notes(4)  &middot; Notes of wgundamj44 ">
+<meta property="og:site_name" content="Notes of wgundamj44"/>
+<meta property="og:url" content="http://0.0.0.0/post/2015-09-30-project-node-4/" />
+<meta property="og:locale" content="en-us">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2015-09-30T00:00:00Z" />
+<meta property="og:article:modified_time" content="2015-09-30T00:00:00Z" />
+
+  
+    
+<meta property="og:article:tag" content="Django">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Some project notes(4)" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="http://0.0.0.0/post/2015-09-30-project-node-4/" />
+<meta name="twitter:domain" content="http://0.0.0.0/">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Some project notes(4)",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2015-09-30",
+    "description": "",
+    "wordCount":  567 
+  }
+</script>
+
+
+
+<link rel="canonical" href="http://0.0.0.0/post/2015-09-30-project-node-4/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://0.0.0.0/touch-icon-144-precomposed.png">
+<link href="http://0.0.0.0/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.15-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://0.0.0.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/style.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/highlight/solarized_light.css">
+
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="http://0.0.0.0/">
+  Notes of wgundamj44
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+
+  
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>Some project notes(4)
+</h1>
+
+  <div class="metas">
+<time datetime="2015-09-30">30 Sep, 2015</time>
+
+
+  
+  &middot; Read in about 3 min
+  &middot; (567 Words)
+  <br>
+  
+<a class="label" href="http://0.0.0.0/tags/django">Django</a>
+
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<h2 id="boostrap-of-django:b5247f547e103bba4bcf33f457074e2b">boostrap of django</h2>
+
+<h3 id="class-apps:b5247f547e103bba4bcf33f457074e2b">Class Apps</h3>
+
+<p>Everything begins from django.setup(). In this method, it will import django.apps, and as a side effect, <code>apps</code> is created.</p>
+
+<p><code>apps</code> is an instance of django.registry.Apps. This class holds several important fields, <code>all_models</code> which hold all the mapping of from app labels to model. <code>app_configs</code> is all the configurations of app in django. When bootstrapping, <code>apps.populate</code> will be called passing all the apps listed in settings.INSTALLED_APPS. It traverse the apps one by one, and create an <code>AppConfig</code> for each app, and insert it to <code>app_configs</code>. When bootstrapped finished, it will call <code>ready</code> of each app. So, if we what some work to be done after app started, we can do it in ready method of <code>AppConfig</code>.</p>
+
+<p><code>apps</code> has a <code>register_model</code> method, which will insert a model to <code>all_models</code> of apps. The method is called at <code>ModelBase</code> of django.db.models.base. We know that for creation of every
+model class, <code>ModelBase</code> will be called, and inside its <code>__new__</code> method, it will call register_model to register itself.</p>
+
+<p>In <code>populate</code>, for each <code>AppConfig</code>, it also use <code>import_models</code> to load models. But here is the misleading part, in the call <code>import_models(all_models)</code>, all_models is actually None. In <code>import_models</code>, it will check if this app has a model module, if so it will import the model. When the model is imported, every model class in model module will be created, and <code>ModelBase</code> will be called. As mentioned above, <code>all_models</code> will be filled in <code>ModelBase</code>.</p>
+
+<h3 id="class-appconfig:b5247f547e103bba4bcf33f457074e2b">Class AppConfig</h3>
+
+<p>This class hold the informations of an app, eg. name, label, models, etc. AppConfig has a factory method to create itself. When we insert an entry in settings.INSTALLED_APPS, if the
+entry is moudle name, then <code>create</code> will try to import it. If the imported module has a <code>default_app_config</code> attribute which is a subclass of AppConfig, then it will be imported, and become the runtime class of <code>AppConfig</code> instance. Otherwise, the default implmentation of AppConfig will be used.</p>
+
+<h3 id="wrap-up:b5247f547e103bba4bcf33f457074e2b">Wrap up</h3>
+
+<p>When jdango finishes bootstrap, its <code>django.apps</code> will contains a <code>app_configs</code> containing the config infomations for each installed_apps, and <code>all_models</code> containing all the models.</p>
+
+<h2 id="from-request-to-view:b5247f547e103bba4bcf33f457074e2b">From request to view</h2>
+
+<p>We start the story from <code>django.core.handlers.wsgi.WSGIHandler</code>, from experience of werkzeug, we know that this handler is for the handling of request. And it has our old friend <code>__call__(self, environ, start_response)</code> &ndash; a standard WSGI app function, as mentioned in <a href="http://0.0.0.0/post/2015-05-21-http-service-in-python/">this post</a>. In this function, it does two things: generate a request object, get a response object from request.</p>
+
+<h3 id="generate-a-request:b5247f547e103bba4bcf33f457074e2b">Generate a request</h3>
+
+<p>The code <code>request = self.request_class(environ)</code> generates a reqeust object, where request_class is <code>WSGIRequest</code>. The request object holds lots of information about this coming request, eg. its method, its path, etc. This request object is what we got in request paremter of <code>view_handler(request, xxx)</code> in views.</p>
+
+<h3 id="get-a-response:b5247f547e103bba4bcf33f457074e2b">Get a response</h3>
+
+<p><code>BaseHandler.get_response(self, request)</code> is where response is generated. It will first go through each request middleware, and try to make a response. Global operation like CSRF prevention happens in this stage. If none of the request middleware made a response, then the request will be matched with URLResovler, and try to find a view method that handles the request. This is were our URL router and view functions get used. If any exception happens, exception middleware will take control and try to make response. Then if response has <code>render</code> method, template response middleware will get in and render a new response. Finally response middleware proccesses the response and make final response.</p>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="http://0.0.0.0/post/2015-09-26-project-note-3/" title="Some project notes(3)">
+      Previous
+    </a>
+    
+
+    
+    <a class="next" href="http://0.0.0.0/post/2015-10-23-pylint-import-error-in-django/" title="Solve pylint import error in Django">
+      Next
+    </a>
+    
+
+  
+
+
+</div>
+
+  <div class="container comments">
+  <h2>Comments</h2>
+  
+
+</div>
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+
+</div>
+
+
+  
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="http://0.0.0.0/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+  </body>
+</html>
+

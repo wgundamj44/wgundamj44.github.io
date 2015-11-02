@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tech on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/categories/tech/</link>
+    <description>Recent content in Tech on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 23 Oct 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://0.0.0.0/categories/tech/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Solve pylint import error in Django</title>
+      <link>http://0.0.0.0/post/2015-10-23-pylint-import-error-in-django/</link>
+      <pubDate>Fri, 23 Oct 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-10-23-pylint-import-error-in-django/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;m using emacs flycheck with pylint to lint my Django project. Everything goes well except I constantly reports
+import error for my user-defined modules. The system modules are ok, the Django modules are ok too. We know that python uses
+sys.path to search for modules, so the problem must be python interpreter sees different sys.path value to pylint.&lt;/p&gt;
+
+&lt;p&gt;So I created a pylintrc file, and put it in the base folder of my project(the folder contains manage.py), in content is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;[Master]
+init-hook=&#39;import sys; sys.path.append(&amp;quot;/base/folder/of/my/project&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then I found import error disappears. So the reason is clear, pylint lacks the path to the base folder of my project.&lt;/p&gt;
+
+&lt;p&gt;As mentioned in the pydocs, when script invokes the interpreter, the path to this script will be added to the head of sys.path.
+manage.py is the entry script of Django project, so the folder of manage.py will be added to sys.path, as a result, all the modules can be
+import relative to this path. That is why our Django project can import self-made module properly. To mimic this behavior, a properer way of
+writing pylintrc above is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;[Master]
+init-hook=&#39;import sys; sys.path = [&amp;quot;/base/folder/of/my/project&amp;quot;] + sys.path&#39;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Some project notes(4)</title>
+      <link>http://0.0.0.0/post/2015-09-30-project-node-4/</link>
+      <pubDate>Wed, 30 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-09-30-project-node-4/</guid>
+      <description>
+
+&lt;h2 id=&#34;boostrap-of-django:b5247f547e103bba4bcf33f457074e2b&#34;&gt;boostrap of django&lt;/h2&gt;
+
+&lt;h3 id=&#34;class-apps:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Class Apps&lt;/h3&gt;
+
+&lt;p&gt;Everything begins from django.setup(). In this method, it will import django.apps, and as a side effect, &lt;code&gt;apps&lt;/code&gt; is created.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apps&lt;/code&gt; is an instance of django.registry.Apps. This class holds several important fields, &lt;code&gt;all_models&lt;/code&gt; which hold all the mapping of from app labels to model. &lt;code&gt;app_configs&lt;/code&gt; is all the configurations of app in django. When bootstrapping, &lt;code&gt;apps.populate&lt;/code&gt; will be called passing all the apps listed in settings.INSTALLED_APPS. It traverse the apps one by one, and create an &lt;code&gt;AppConfig&lt;/code&gt; for each app, and insert it to &lt;code&gt;app_configs&lt;/code&gt;. When bootstrapped finished, it will call &lt;code&gt;ready&lt;/code&gt; of each app. So, if we what some work to be done after app started, we can do it in ready method of &lt;code&gt;AppConfig&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apps&lt;/code&gt; has a &lt;code&gt;register_model&lt;/code&gt; method, which will insert a model to &lt;code&gt;all_models&lt;/code&gt; of apps. The method is called at &lt;code&gt;ModelBase&lt;/code&gt; of django.db.models.base. We know that for creation of every
+model class, &lt;code&gt;ModelBase&lt;/code&gt; will be called, and inside its &lt;code&gt;__new__&lt;/code&gt; method, it will call register_model to register itself.&lt;/p&gt;
+
+&lt;p&gt;In &lt;code&gt;populate&lt;/code&gt;, for each &lt;code&gt;AppConfig&lt;/code&gt;, it also use &lt;code&gt;import_models&lt;/code&gt; to load models. But here is the misleading part, in the call &lt;code&gt;import_models(all_models)&lt;/code&gt;, all_models is actually None. In &lt;code&gt;import_models&lt;/code&gt;, it will check if this app has a model module, if so it will import the model. When the model is imported, every model class in model module will be created, and &lt;code&gt;ModelBase&lt;/code&gt; will be called. As mentioned above, &lt;code&gt;all_models&lt;/code&gt; will be filled in &lt;code&gt;ModelBase&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;class-appconfig:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Class AppConfig&lt;/h3&gt;
+
+&lt;p&gt;This class hold the informations of an app, eg. name, label, models, etc. AppConfig has a factory method to create itself. When we insert an entry in settings.INSTALLED_APPS, if the
+entry is moudle name, then &lt;code&gt;create&lt;/code&gt; will try to import it. If the imported module has a &lt;code&gt;default_app_config&lt;/code&gt; attribute which is a subclass of AppConfig, then it will be imported, and become the runtime class of &lt;code&gt;AppConfig&lt;/code&gt; instance. Otherwise, the default implmentation of AppConfig will be used.&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;When jdango finishes bootstrap, its &lt;code&gt;django.apps&lt;/code&gt; will contains a &lt;code&gt;app_configs&lt;/code&gt; containing the config infomations for each installed_apps, and &lt;code&gt;all_models&lt;/code&gt; containing all the models.&lt;/p&gt;
+
+&lt;h2 id=&#34;from-request-to-view:b5247f547e103bba4bcf33f457074e2b&#34;&gt;From request to view&lt;/h2&gt;
+
+&lt;p&gt;We start the story from &lt;code&gt;django.core.handlers.wsgi.WSGIHandler&lt;/code&gt;, from experience of werkzeug, we know that this handler is for the handling of request. And it has our old friend &lt;code&gt;__call__(self, environ, start_response)&lt;/code&gt; &amp;ndash; a standard WSGI app function, as mentioned in &lt;a href=&#34;http://0.0.0.0/post/2015-05-21-http-service-in-python/&#34;&gt;this post&lt;/a&gt;. In this function, it does two things: generate a request object, get a response object from request.&lt;/p&gt;
+
+&lt;h3 id=&#34;generate-a-request:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Generate a request&lt;/h3&gt;
+
+&lt;p&gt;The code &lt;code&gt;request = self.request_class(environ)&lt;/code&gt; generates a reqeust object, where request_class is &lt;code&gt;WSGIRequest&lt;/code&gt;. The request object holds lots of information about this coming request, eg. its method, its path, etc. This request object is what we got in request paremter of &lt;code&gt;view_handler(request, xxx)&lt;/code&gt; in views.&lt;/p&gt;
+
+&lt;h3 id=&#34;get-a-response:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Get a response&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;BaseHandler.get_response(self, request)&lt;/code&gt; is where response is generated. It will first go through each request middleware, and try to make a response. Global operation like CSRF prevention happens in this stage. If none of the request middleware made a response, then the request will be matched with URLResovler, and try to find a view method that handles the request. This is were our URL router and view functions get used. If any exception happens, exception middleware will take control and try to make response. Then if response has &lt;code&gt;render&lt;/code&gt; method, template response middleware will get in and render a new response. Finally response middleware proccesses the response and make final response.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Some project notes(3)</title>
+      <link>http://0.0.0.0/post/2015-09-26-project-note-3/</link>
+      <pubDate>Sat, 26 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-09-26-project-note-3/</guid>
+      <description>
+
+&lt;h2 id=&#34;transaction-in-django:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Transaction in Django&lt;/h2&gt;
+
+&lt;h3 id=&#34;atomic:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;atomic&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;@atomic
+def transaction_func():
+    pass
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We know that a decorator will return a wrapper function/class of the decorated function. In Django, the an instance of Atomic class is returned. Atomic is a subclass of ContextDecorator, it is callable because ContextDecorator has a &lt;code&gt;__call__&lt;/code&gt; function.&lt;/p&gt;
+
+&lt;p&gt;In ContextDecorator&amp;rsquo;s &lt;code&gt;__call__&lt;/code&gt;, we can see something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;@wraps(func, assigned=available_attrs(func))
+def inner(*args, **kwargs):
+    with self:
+        return func(*args, **kwargs)
+return inner
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So, the wrapped function will be put into a context &lt;code&gt;self&lt;/code&gt;. In its context control function,
+&lt;code&gt;__enter__&lt;/code&gt; will open a new transaction if not already in one or create a new savepoint if otherwise. &lt;code&gt;__exit__&lt;/code&gt; is rather complex. Generally, if atomic is wrapped in another atomic, then the inner one will be treated as a savepoint if not be told otherwise. when the inner one exits, Django will try to commit the inner savepoint, and rollback the savepoint and set &lt;code&gt;needs_rollback&lt;/code&gt; flag if error occurs. If everything goes well, then in the outermost atomic exits, Django will commit the transaction.&lt;/p&gt;
+
+&lt;h3 id=&#34;database-connections:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;database connections&lt;/h3&gt;
+
+&lt;p&gt;In Django settings, we wrote DATABASES like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;DATABASES = {
+    &#39;default&#39;: {
+        &#39;ENGINE&#39;: &#39;Django.db.backends.mysql&#39;, # Add &#39;postgresql_psycopg2&#39;, &#39;mysql&#39;, &#39;sqlite3&#39; or &#39;oracle&#39;.
+        &#39;NAME&#39;: &#39;&#39;,                      # Or path to database file if using sqlite3.
+        # The following settings are not used with sqlite3:
+        &#39;USER&#39;: &#39;&#39;,
+        &#39;PASSWORD&#39;: &#39;&#39;,
+        &#39;HOST&#39;: &#39;&#39;,                      # Empty for localhost through domain sockets or &#39;127.0.0.1&#39; for localhost through TCP.
+        &#39;PORT&#39;: &#39;&#39;,                      # Set to empty string for default.
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So how this info is used? Django has a class &lt;code&gt;ConnectionHandler&lt;/code&gt;. This class holds the &lt;code&gt;DATABSES&lt;/code&gt; in its &lt;code&gt;_database&lt;/code&gt; dict. Also, it has a &lt;code&gt;_connection&lt;/code&gt; dict, which stores the connections to databases. For example, for our DATABASES above, &lt;code&gt;_connection&lt;/code&gt; will have a &lt;code&gt;default&lt;/code&gt; attribute, with its value the connection instance which talks to the database. All the db manipulations, like transaction, rollback etc. will be carried out through this connection instance.&lt;/p&gt;
+
+&lt;h2 id=&#34;behind-model-class-of-django:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Behind model class of Django&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField(&#39;date published&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When we use the above code to create a model in Django, we get a class &lt;code&gt;Question&lt;/code&gt;. If we try to invoke &lt;code&gt;Question.pub_date&lt;/code&gt;, we get an attribute error saying that pub_date isn&amp;rsquo;t there.
+Instead, in &lt;code&gt;Question._meta.fields&lt;/code&gt; we find these fields. So, models.Model does more than it appears to do.&lt;/p&gt;
+
+&lt;p&gt;In the definition of models.Model, I find it has a base class &lt;code&gt;six.with_metaclass(ModelBase)&lt;/code&gt;. Here its base class is not the simple ModelBase, &lt;code&gt;with_metaclass&lt;/code&gt; made a dummy class like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def with_metaclass(meta, *bases):
+    class metaclass(meta):
+        def __new__(cls, name, this_bases, d):
+            return meta(name, bases, d)
+    return type.__new__(metaclass, &#39;temporary_class&#39;, (), {})
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a python2/3 compatible way of setting metaclass.
+About metaclass, there&amp;rsquo;s an excellent article in &lt;a href=&#34;http://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python&#34;&gt;stackoverflow&lt;/a&gt;. Simply put, metaclass is the class of class or a class is an instance of its metaclass. When a class is defined, the class&amp;rsquo;s metaclass is called to create the class itself.&lt;/p&gt;
+
+&lt;p&gt;So how this with_metaclass works?&lt;/p&gt;
+
+&lt;p&gt;When &lt;code&gt;six.with_metaclass(ModelBase)&lt;/code&gt; is invoked, its return value is a class. This class is an instance of &lt;code&gt;metaclass&lt;/code&gt;, as &lt;code&gt;type.__new__(metaclass)&lt;/code&gt; implies. Now &lt;code&gt;Model&lt;/code&gt;&amp;rsquo;s base class (The return value of &lt;code&gt;with_metaclass&lt;/code&gt;) is a class whose &lt;strong&gt;class&lt;/strong&gt; will be &lt;code&gt;metaclass&lt;/code&gt;. According to &lt;a href=&#34;https://docs.python.org/2/reference/datamodel.html#__metaclass__&#34;&gt;python doc&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;if there is at least one base class, its metaclass is used
+(this looks for a &lt;strong&gt;class&lt;/strong&gt; attribute first and if not found, uses its type)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;code&gt;Model&lt;/code&gt;&amp;rsquo;s metaclass will be &lt;code&gt;metaclass&lt;/code&gt;, so will all its sub classes. As a result, when &lt;code&gt;Question&lt;/code&gt; is defined, &lt;code&gt;__new__&lt;/code&gt; of &lt;code&gt;metaclass&lt;/code&gt; will be called to create &lt;code&gt;Question&lt;/code&gt; class, and it returns an instance of &lt;code&gt;ModelBase&lt;/code&gt;, this instance becomes the content of &lt;code&gt;Question&lt;/code&gt; class we saw.&lt;/p&gt;
+
+&lt;p&gt;How does &lt;code&gt;ModelBase&lt;/code&gt; create the content of &lt;code&gt;Question&lt;/code&gt;?&lt;/p&gt;
+
+&lt;p&gt;First thing I can see is that, it attach &lt;code&gt;_meta&lt;/code&gt; object to model class. _meta is an object of class &lt;code&gt;Options&lt;/code&gt;. This &lt;code&gt;Options&lt;/code&gt; holds many information about model, including primary key, app_label, fields, etc. Attributes in &lt;code&gt;Meta&lt;/code&gt; Class of Model will be stored here. This can answer our problem of where has the fields gone? They were added to _meta in the &lt;code&gt;__new__&lt;/code&gt; of &lt;code&gt;ModelBase&lt;/code&gt;. Interestingly, fields is actually a method in &lt;code&gt;Options&lt;/code&gt;, when called return a list on the fly.&lt;/p&gt;
+
+&lt;p&gt;Second, install &lt;code&gt;Manager&lt;/code&gt; of model. This is VERY complex, the behavior depends heavily on if the model is abstract, proxy or its parents. Anyway, at least &lt;code&gt;ensure_default_manager&lt;/code&gt; will be called, so that we can call &lt;code&gt;Question.objects&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Third, add &lt;code&gt;DoesNotExist&lt;/code&gt; and &lt;code&gt;MultipleObjectsReturned&lt;/code&gt; exception for model.&lt;/p&gt;
+
+&lt;h2 id=&#34;many-methods-of-manager-belongs-to-queryset:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Many methods of Manager belongs to QuerySet&lt;/h2&gt;
+
+&lt;p&gt;We often use something like &lt;code&gt;Question.objects.filter()&lt;/code&gt;, actually this method comes from class &lt;code&gt;QuerySet&lt;/code&gt;. The definition of &lt;code&gt;Manager&lt;/code&gt; is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class Manager(BaseManager.from_queryset(QuerySet)):
+    pass
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;from_queryset&lt;/code&gt; is a classmethod, it will &amp;lsquo;copy&amp;rsquo; necessary methods from QuerySet into BaseManager. This &amp;lsquo;copy&amp;rsquo; is a delegation, when we call &lt;code&gt;filter&lt;/code&gt; on &lt;code&gt;Manager&lt;/code&gt;, what happens is that the Manager instance will call the same function on the &lt;code&gt;queryset&lt;/code&gt; obtained by calling &lt;code&gt;get_queryset&lt;/code&gt;. That&amp;rsquo;s why when customizing Managers, we often override the &lt;code&gt;get_queryset&lt;/code&gt; method, so that any following query functions will all carried out based on the customized &lt;code&gt;queryset&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;fields-in-django-orm:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Fields in Django ORM&lt;/h2&gt;
+
+&lt;h2 id=&#34;how-query-is-generated-in-django-orm:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;How query is generated in Django ORM&lt;/h2&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Some project notes(2)</title>
+      <link>http://0.0.0.0/post/2015-08-13-project-note2/</link>
+      <pubDate>Thu, 13 Aug 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-08-13-project-note2/</guid>
+      <description>
+
+&lt;h2 id=&#34;develop-enviroment-with-docker:e7d43dfc46b4cac080bf58b0a0e5c283&#34;&gt;Develop enviroment with Docker&lt;/h2&gt;
+
+&lt;p&gt;I used docker-compose to build my develop enviroment. The project consists of MySQL, django and celery(RabbitMQ). So my docker-compose.yml will be something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;db:
+  build: ./mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=testtest
+  volumes:
+    - /develop/db:/var/lib/mysql
+
+rabbitmq:
+  image: tutum/rabbitmq
+environment:
+  - RABBITMQ_PASS=guest
+ports:
+  - &amp;quot;5672:5672&amp;quot;  # we forward this port because it&#39;s useful for debugging
+  - &amp;quot;15672:15672&amp;quot;  # here, we can access rabbitmq management plugin
+
+worker:
+  build: ./python
+  environment:
+    - C_FORCE_ROOT=1 # Root is not allowed to use celery by default
+  command: celery worker -A projects.celery -n default@%h --loglevel=debug
+  volumes:
+    - ./mycode:/code # worker and django app shares same code
+  links:
+    - db
+    - rabbitmq
+
+web:
+  build: ./python
+  environment:
+    - DJANGO_SETTINGS_MODULE=my_config #specify setting file to use
+  volumes:
+    - ./mycode:/code # mount my code to /code in container
+    - /var/log/django:/var/log/django
+  command: python manage.py runserver 0.0.0.0:8000
+  ports:
+    - &amp;quot;8000:8000&amp;quot;
+  links:
+    - db
+    - rabbitmq
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;FROM python:2.7
+ENV PYTHONUNBUFFERED 1
+RUN apt-get update;apt-get install -y mysql-client gettext vim
+RUN mkdir /code
+RUN mkdir /var/log/django
+WORKDIR /code
+ADD ./myocde/requirements.txt /code/
+RUN pip install -r requirements.txt
+RUN pip install ipython
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;start-two-sites:e7d43dfc46b4cac080bf58b0a0e5c283&#34;&gt;start two sites&lt;/h3&gt;
+
+&lt;p&gt;Sometimes I need to test my site with different config file. So I made a copy of the docker-compose.yml, and name it site2.yml. Then in site2.yml,
+I change the port mapping of web to other ports, eg. 1234:1234.&lt;/p&gt;
+
+&lt;p&gt;Then with &lt;code&gt;docker-compose -f site2.yml run --serive-ports python manage.py 0.0.0.0:1234&lt;/code&gt;, I can start another site with port 1234.
+Note that the &amp;ndash;service-ports option  makes the port mapping of web available in started container.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Some project notes(1)</title>
+      <link>http://0.0.0.0/post/2015-08-12-project-note/</link>
+      <pubDate>Wed, 12 Aug 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-08-12-project-note/</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve been doing my current project for two months, and I feel it is time for some notes.&lt;/p&gt;
+
+&lt;h2 id=&#34;try-out-react-in-frontend:b1745fd124132e9667744292102bd3ba&#34;&gt;Try out react in frontend&lt;/h2&gt;
+
+&lt;p&gt;The original front end is django template + jQuery + bootstrap. Without any framework to manage the code structure, there were nearly no reusable UI components. We had to implement every page from scratch. More importantly, without certain patterns, the implementations of front end logic differed greatly from one another even for similar logics.&lt;/p&gt;
+
+&lt;p&gt;The project is a business management site, the pages are mainly the CRUD of different business objects, eg. a list for all the objects, a modal dialog for detail of an object, a modal for update or create object, a modal for delete confirm. It&amp;rsquo;s clear that UI elements can be reused somehow. For example, the boostrap modal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;&amp;lt;div class=&amp;quot;modal fade&amp;quot;&amp;gt;
+  &amp;lt;div class=&amp;quot;modal-dialog&amp;quot;&amp;gt;
+    &amp;lt;div class=&amp;quot;modal-content&amp;quot;&amp;gt;
+      &amp;lt;div class=&amp;quot;modal-header&amp;quot;&amp;gt;
+        &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;close&amp;quot; data-dismiss=&amp;quot;modal&amp;quot; aria-label=&amp;quot;Close&amp;quot;&amp;gt;&amp;lt;span aria-hidden=&amp;quot;true&amp;quot;&amp;gt;&amp;amp;times;&amp;lt;/span&amp;gt;&amp;lt;/button&amp;gt;
+        &amp;lt;h4 class=&amp;quot;modal-title&amp;quot;&amp;gt;Modal title&amp;lt;/h4&amp;gt;
+      &amp;lt;/div&amp;gt;
+      &amp;lt;div class=&amp;quot;modal-body&amp;quot;&amp;gt;
+        &amp;lt;p&amp;gt;One fine body&amp;amp;hellip;&amp;lt;/p&amp;gt;
+      &amp;lt;/div&amp;gt;
+      &amp;lt;div class=&amp;quot;modal-footer&amp;quot;&amp;gt;
+        &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;btn btn-default&amp;quot; data-dismiss=&amp;quot;modal&amp;quot;&amp;gt;Close&amp;lt;/button&amp;gt;
+        &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;btn btn-primary&amp;quot;&amp;gt;Save changes&amp;lt;/button&amp;gt;
+      &amp;lt;/div&amp;gt;
+    &amp;lt;/div&amp;gt;&amp;lt;!-- /.modal-content --&amp;gt;
+  &amp;lt;/div&amp;gt;&amp;lt;!-- /.modal-dialog --&amp;gt;
+&amp;lt;/div&amp;gt;&amp;lt;!-- /.modal --&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This structure is common among all objects, the difference is the title, the content and footer. The old way will be copy this structure, then write the contents in title, content and footer. Consider after copied this structure for near a hundred times, then one day we need to add a new css class in every modal&amp;hellip; What a desperate work.. How about we write only one copy of this structure and generate the contents dynamicaly. With react, this is a very trival work.&lt;/p&gt;
+
+&lt;p&gt;Another problem is that, as UI elements get more and more complex, the relation between elements will be hard to manage. For example, when radio button A is checked, textinput B should appear, button C should hide, button D should appear&amp;hellip; And when button A lost its check, we should perform the reverse actions. This will get tedious and hard to understand.&lt;/p&gt;
+
+&lt;h4 id=&#34;data-binding:b1745fd124132e9667744292102bd3ba&#34;&gt;data binding&lt;/h4&gt;
+
+&lt;p&gt;To solve this problem, I think first we need to use data to drive the UI, instead of considering the relationship between UI elements. For the example above, bind radio A to a variable, then make related UI listen for state of variable and make change themselves. If one day, we deside to add new UI when A is checked, just make this UI listen for vairable, saving us the trouble of modifying the listeners of A. This way we removed the complex relations between UIs, as all the UIs are now bind to data. For our project, we use state of react components to hold the data, and update the underlying UI accordingly. We won&amp;rsquo;t care which children will get changed when state changes, the children is responsible for themselves.&lt;/p&gt;
+
+&lt;h4 id=&#34;components:b1745fd124132e9667744292102bd3ba&#34;&gt;components&lt;/h4&gt;
+
+&lt;p&gt;Another thing I learned is that, when updatin UI, prefer function call to update DOM directly. For example, when click &amp;lsquo;Detail&amp;rsquo; button, we load some data and show a modal with the data displayed. A naive way is to use lots of &lt;code&gt;$(xxx).value(yyy)&lt;/code&gt; or &lt;code&gt;$(xxx).find(xxx).prop(&#39;checked&#39;, true)&lt;/code&gt; to update DOM. As we can see, this is not easy to understand at application level. A prefer way is, we create a class that represents the modal for detail. Then, we pass this class the data, and say:&amp;ldquo;Hey, update your self&amp;rdquo;. Although under the hood of this class, it does the same ugly things as the first approach, the application itself gets a lot cleaner, and the change of UI in modal won&amp;rsquo;t break the application. With react, this get done natrually by passing properties to child component.&lt;/p&gt;
+
+&lt;p&gt;After used react, our modal looks like this.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;React.createClass({
+  render: function() {
+    return (
+      &amp;lt;div class=&amp;quot;modal fade&amp;quot;&amp;gt;
+	&amp;lt;div class=&amp;quot;modal-dialog&amp;quot;&amp;gt;
+	  &amp;lt;div class=&amp;quot;modal-content&amp;quot;&amp;gt;
+	    &amp;lt;div class=&amp;quot;modal-header&amp;quot;&amp;gt;
+              &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;close&amp;quot; data-dismiss=&amp;quot;modal&amp;quot; aria-label=&amp;quot;Close&amp;quot;&amp;gt;&amp;lt;span aria-hidden=&amp;quot;true&amp;quot;&amp;gt;&amp;amp;times;&amp;lt;/span&amp;gt;&amp;lt;/button&amp;gt;
+              &amp;lt;h4 class=&amp;quot;modal-title&amp;quot;&amp;gt;{this.props.title}&amp;lt;/h4&amp;gt;
+	    &amp;lt;/div&amp;gt;
+	    &amp;lt;div class=&amp;quot;modal-body&amp;quot;&amp;gt;
+	      &amp;lt;ChildContent data={this.state.data} /&amp;gt;
+	    &amp;lt;/div&amp;gt;
+	    &amp;lt;div class=&amp;quot;modal-footer&amp;quot;&amp;gt;
+              &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;btn btn-default&amp;quot; data-dismiss=&amp;quot;modal&amp;quot;&amp;gt;Close&amp;lt;/button&amp;gt;
+              &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;btn btn-primary&amp;quot; onClick={this.handleSubmit}&amp;gt;Save changes&amp;lt;/button&amp;gt;
+	    &amp;lt;/div&amp;gt;
+	  &amp;lt;/div&amp;gt;&amp;lt;!-- /.modal-content --&amp;gt;
+	&amp;lt;/div&amp;gt;&amp;lt;!-- /.modal-dialog --&amp;gt;
+      &amp;lt;/div&amp;gt;&amp;lt;!-- /.modal --&amp;gt;
+    )
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We just pass data to child, and child will make the view done according to specific needs.&lt;/p&gt;
+
+&lt;h3 id=&#34;some-cavets-when-using-react:b1745fd124132e9667744292102bd3ba&#34;&gt;some cavets when using react&lt;/h3&gt;
+
+&lt;h4 id=&#34;how-to-coexist-with-bootstrap-modal:b1745fd124132e9667744292102bd3ba&#34;&gt;How to coexist with bootstrap-modal&lt;/h4&gt;
+
+&lt;p&gt;Our project use bootstrap-modal, which comes with a ModalManager, so that modal can be stackable. But when doing this, it moves the modals away from original position and attach them to document. If we use react to generate modal, when it is shown, the react will fail with &lt;code&gt;Invariant Violation: findComponentRoot(..., .0.1.0): Unable to find element. This probably means the DOM was unexpectedly mutated.&lt;/code&gt; It turns out that, outer program should not manipulate the DOM of react component directly. After some search, people say that, it doesn&amp;rsquo;t matter if parents of react component is moved around. So instead of generating the whold modal with react, we first write &lt;code&gt;&amp;lt;div class=&amp;quot;modal&amp;quot;&amp;gt;&amp;lt;/div&amp;gt;&lt;/code&gt; part with plain html, then we use react to generate &lt;code&gt;&amp;lt;div class=&amp;quot;modal-dialog&amp;quot;&amp;gt;&amp;lt;/div&amp;gt;&lt;/code&gt;part, and mount it into modal. With this approach, the error of react gone away.&lt;/p&gt;
+
+&lt;h4 id=&#34;key-and-generated-list:b1745fd124132e9667744292102bd3ba&#34;&gt;key and generated list&lt;/h4&gt;
+
+&lt;p&gt;In react &lt;a href=&#34;https://facebook.github.io/react/docs/multiple-components.html#dynamic-children&#34;&gt;document&lt;/a&gt;, it is said that &lt;code&gt;key&lt;/code&gt; is needed to determine the child should be reused or destoryed. I didn&amp;rsquo;t quite understand it until I ran into some wierd problem. My UI is a list of input representing a list of data eg. [a, b,c ,d]. We can delete a row, or add a new row.
+The werid part is that, when I delete the row with value c, the resulting list in UI will be [a, b, c] which is wrong, but the data of the state is correct with data [a, b, d]. That is always the last UI element gets deleted. When I look at the row, each row is with something like &lt;code&gt;data-reactid=&amp;quot;.0.0.1.0.0.2.0&amp;quot;&lt;/code&gt;,  the last digit in the id is key(maybe..). It seems that if we don&amp;rsquo;t allocate key, react will simple allocate 1, 2, 3, 4  as keys. When we delete c, the state changes so the UI repaints, again key 1, 2, 3 is allocated for remaining elements. React compares key, and think that element with 1, 2, 3 is unchanged and they are reused, only element with key 4 is removed. As the result, c remained while d went away. So I tried to allocate brand new keys for each state change, eg. [1, 2, 3, 4], then [5, 6, 7, 8]. So that there were no duplicate keys between state change. Then the id will looks like &lt;code&gt;data-reactid=&amp;quot;.0.0.1.0.0.2.$1&lt;/code&gt;, where $1 seems the key 1. And this solves the problem. But actually, it is a big waste as all the UI elements got repainted event they didn&amp;rsquo;t change.&lt;/p&gt;
+
+&lt;h3 id=&#34;todo-automate-babel-with-webpack:b1745fd124132e9667744292102bd3ba&#34;&gt;TODO: automate babel with webpack&lt;/h3&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Some notes on django</title>
+      <link>http://0.0.0.0/post/2015-08-04-memo-on-django/</link>
+      <pubDate>Tue, 04 Aug 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-08-04-memo-on-django/</guid>
+      <description>
+
+&lt;p&gt;Recently I&amp;rsquo;ve been using Django in my projects. Here are some notes and pitfalls.&lt;/p&gt;
+
+&lt;h3 id=&#34;how-to-use-i18n-with-javascript:de035a89148bb9c23379c3d4e290fd8b&#34;&gt;How to use i18n with javascript&lt;/h3&gt;
+
+&lt;p&gt;django&amp;rsquo; s translation also works for javascript. To make the .mo files available to js,
+we need to add some url rules, and also add that path to html files that needs loading translation files.&lt;/p&gt;
+
+&lt;p&gt;The only thing needs attention is that, when making translation files for js, we need to give &lt;code&gt;makemessages&lt;/code&gt; a
+&lt;code&gt;-d djangojs&lt;/code&gt; option, otherwise it won&amp;rsquo;t work. The generated file is with name djangojs.po compared to the normal name django.po.&lt;/p&gt;
+
+&lt;p&gt;In the &lt;code&gt;js_info_dict&lt;/code&gt; that is passed to &lt;code&gt;javascript_catalog&lt;/code&gt;, we need to specify the domain as &lt;code&gt;djangojs&lt;/code&gt;. It we specified &lt;code&gt;django&lt;/code&gt; as
+domain, then po files of python and templates will be loaded, which may not be what we want.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How much memory does PHP array take?</title>
+      <link>http://0.0.0.0/post/2014-05-01-php-memory/</link>
+      <pubDate>Fri, 01 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2014-05-01-php-memory/</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve read an interesting article talking about how much memory does PHP array take.
+Here is the summary.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;                             |  64 bit   | 32 bit
+---------------------------------------------------
+zval                         |  24 bytes | 16 bytes
++ cyclic GC info             |   8 bytes |  4 bytes
++ allocation header          |  16 bytes |  8 bytes
+===================================================
+zval (value) total           |  48 bytes | 28 bytes
+===================================================
+bucket                       |  72 bytes | 36 bytes
++ allocation header          |  16 bytes |  8 bytes
++ pointer                    |   8 bytes |  4 bytes
+===================================================
+bucket (array element) total |  96 bytes | 48 bytes
+===================================================
+total total                  | 144 bytes | 76 bytes
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here are the details of each components:&lt;/p&gt;
+
+&lt;h3 id=&#34;zval:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;zval&lt;/h3&gt;
+
+&lt;p&gt;zval is the internal representation of PHP variables.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;struct _zval_struct {
+    zvalue_value value;     // The value
+    zend_uint refcount__gc; // The number of references to this value (for GC)
+    zend_uchar type;        // The type
+    zend_uchar is_ref__gc;  // Whether this value is a reference (&amp;amp;)
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and zvalue_value looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;typedef union _zvalue_value {
+    long lval;                // For integers and booleans
+    double dval;              // For floats (doubles)
+    struct {                  // For strings
+        char *val;            //     consisting of the string itself
+        int len;              //     and its length
+    } str;
+    HashTable *ht;            // For arrays (hash tables)
+    zend_object_value obj;    // For objects
+} zvalue_value
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The size of zvalue_value is the max of each member, which is str member that takes 12 bytes. Take padding into account, it gives us 16 bytes. So the sum of zval will be 16 + 4 + 1 + 1, which is 22 bytes and padded to 24 bytes in total.&lt;/p&gt;
+
+&lt;h3 id=&#34;cyclic-gc-info:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;cyclic GC info&lt;/h3&gt;
+
+&lt;p&gt;Starts at PHP5.3, it introduced garbage collector for cyclic reference. So it wraps zval into this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;typedef struct _zval_gc_info {
+    zval z;
+    union {
+        gc_root_buffer       *buffered;
+        struct _zval_gc_info *next;
+    } u;
+} zval_gc_info;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So the sum will be 24 + 8 = 32 bytes.&lt;/p&gt;
+
+&lt;h3 id=&#34;allocation-header:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;allocation header&lt;/h3&gt;
+
+&lt;p&gt;Here is the unexpected part: In order to keep track of allocated memories, PHP add allocation header to every allocation done throught it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;typedef struct _zend_mm_block {
+    zend_mm_block_info info;
+#if ZEND_DEBUG
+    unsigned int magic;
+# ifdef ZTS
+    THREAD_T thread_id;
+# endif
+    zend_mm_debug_info debug;
+#elif ZEND_MM_HEAP_PROTECTION
+    zend_mm_debug_info debug;
+#endif
+} zend_mm_block;
+
+typedef struct _zend_mm_block_info {
+#if ZEND_MM_COOKIES
+    size_t _cookie;
+#endif
+    size_t _size; // size of the allocation
+    size_t _prev; // previous block (not sure what exactly this is)
+} zend_mm_block_info;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can&amp;rsquo;t understand above well, but when all the options turned off, the size of above structure is 16 bytes.
+Now we get 48 bytes for each varibale.&lt;/p&gt;
+
+&lt;h3 id=&#34;buckets:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;Buckets&lt;/h3&gt;
+
+&lt;p&gt;As we know, the Array in PHP is in fact Hash table. Every element is in a bucket. The bucket is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;typedef struct bucket {
+    ulong h;                  // The hash (or for int keys the key)
+    uint nKeyLength;          // The length of the key (for string keys)
+    void *pData;              // The actual data
+    void *pDataPtr;           // ??? What&#39;s this ???
+    struct bucket *pListNext; // PHP arrays are ordered. This gives the next element in that order
+    struct bucket *pListLast; // and this gives the previous element
+    struct bucket *pNext;     // The next element in this (doubly) linked list
+    struct bucket *pLast;     // The previous element in this (doubly) linked list
+    const char *arKey;        // The key (for string keys)
+} Bucket;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The size of above structure is 68 bytes, padding to 72 bytes. Every bucket itself is dynamically allocated, adding addtional 16 bytes from allocation header, sums up to 88 bytes. Also, the pointer to each buckets cost 8 bytes, so the final results is 96 bytes.&lt;/p&gt;
+
+&lt;p&gt;Here we come at the results that: each element in array costs: 96 bytes for bucket and 48 bytes for zval = 144 bytes total.
+10000 element array will costs: 13.73MB.&lt;/p&gt;
+
+&lt;h3 id=&#34;array-size-allocation:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;Array size allocation&lt;/h3&gt;
+
+&lt;p&gt;Like vector in STL, size of contailer is not increased one by one. Instead, when size reaches pre-allocated limit, 2 times of the existing memory will allocated. As a result, the actual array size will be larger than the sum of its elements.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;PHP is the BEST language. HAHA..&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>About flycheck</title>
+      <link>http://0.0.0.0/post/2014-11-17-flycheck/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2014-11-17-flycheck/</guid>
+      <description>
+
+&lt;p&gt;Recently I replaced my emacs on-the-fly syntax checker from flymake to flycheck. Flycheck is more well designed so that additional checker can be used without
+introducing into the other plugins.&lt;/p&gt;
+
+&lt;p&gt;For PHP development, I used to use php + phpcs, php for syntax check, phpcs for unused variable check. With flymake, it can only use php by default, and need to
+install flymake-php etc. for phpcs. While in flycheck, there&amp;rsquo;s a mechanism called &amp;lsquo;next checker&amp;rsquo;, in which additional checker can be defined.&lt;/p&gt;
+
+&lt;p&gt;After flycheck is installed, php checker works fine while phpcs does not. So I digged a little further into the source code of flycheck, and found out the reason.
+It turns out that, flycheck will save a copy of the source code to be checked to a tmp folder. In my Mac computer, it is /var/xxx/yyy. This folder is in fact a symbol link
+to /private/var/xxx/yyy/. The output of phpcs use directory name /private/var/xxx, while flycheck assumed the directory name /var/xxx. The flycheck will use &lt;code&gt;string=&lt;/code&gt; tocheck if the origin of
+the error message is the same as the checked file, the file name is obviously different although they refer to the same place.. As a result, the error message will be discarded and no check result will be output.
+My solution is customized the &lt;code&gt;temporary-file-directory&lt;/code&gt; variable to refer to the real directory name instead of the symbol link, and everything works fine. Also, I customized the &lt;code&gt;flycheck-phpcs-standard&lt;/code&gt; to
+specify the standard of phpcs, and &lt;code&gt;flycheck-php-phpcs-executable&lt;/code&gt; to specify the phpcs command path.&lt;/p&gt;
+
+&lt;h2 id=&#34;how-flycheck-works:4fb8eda8f02c022ebaaa118fd7ec67cb&#34;&gt;How flycheck works?&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Configuration&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;php checker&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;flycheck-define-checker php
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This says use php to check for error, and after error check is performed check for warnings use phpmd and phpcs.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;phpcs checker&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;flycheck-define-checker php-phpcs
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This says that use &lt;code&gt;flycheck-phpcs-standard&lt;/code&gt; to check for warnings.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;workflow&lt;/li&gt;
+&lt;li&gt;flycheck-buffer: checker entry point&lt;/li&gt;
+&lt;li&gt;flycheck-start-checker: start a checker
+
+&lt;ul&gt;
+&lt;li&gt;flycheck-checker-executable: extract checker command from checker config&lt;/li&gt;
+&lt;li&gt;flycheck-checker-substitued-arguments: determine the arguments from checker config, also creates temp file for check&lt;/li&gt;
+&lt;li&gt;flycheck-receive-checker-ouput: collects output of checker&lt;/li&gt;
+&lt;li&gt;flycheck-handle-signal: deal with output when process finished with some signal&lt;/li&gt;
+&lt;li&gt;flycheck-finish-syntax-check: finish the check
+
+&lt;ul&gt;
+&lt;li&gt;flycheck-relevant-errors: check if error message belong the current buffer&lt;/li&gt;
+&lt;li&gt;flycheck-process-error-functions: actually change the buffer display with error messages&lt;/li&gt;
+&lt;li&gt;next checker: if there&amp;rsquo;s next checker for the buffer, repeat&amp;hellip;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Set up PHP enviroment with Docker</title>
+      <link>http://0.0.0.0/post/2015-04-15-set-php-enviroment-with-docker/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-04-15-set-php-enviroment-with-docker/</guid>
+      <description>
+
+&lt;p&gt;Set up PHP develop eviroment with docker.&lt;/p&gt;
+
+&lt;h2 id=&#34;docker-image:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;docker image&lt;/h2&gt;
+
+&lt;p&gt;I created my image based on offical 5.5-apache image, with following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;FROM php:5.5-apache
+
+# install wget and unzip in order to install php extensions from github
+RUN apt-get update &amp;amp;&amp;amp; apt-get install -y wget unzip
+
+
+# enable mbstirng as we can&#39;t controll the compilation flag of php
+RUN docker-php-ext-install mbstring
+
+# install mcrypt and pdo
+RUN apt-get update &amp;amp;&amp;amp; apt-get install -y libmcrypt-dev \
+    &amp;amp;&amp;amp; docker-php-ext-install mcrypt \
+    &amp;amp;&amp;amp; docker-php-ext-install mysql
+
+# install redis extension
+WORKDIR /root
+RUN wget https://github.com/nicolasff/phpredis/archive/2.2.5.zip \
+    &amp;amp;&amp;amp; unzip 2.2.5.zip \ 
+    &amp;amp;&amp;amp; mv phpredis-2.2.5 /usr/src/php/ext/phpredis \
+    &amp;amp;&amp;amp; docker-php-ext-install phpredis
+#RUN cp /usr/local/etc/php/conf.d/ext-phpredis-2.2.5.ini /etc/php5/mods-available/redis.ini
+
+# install timecop
+RUN wget https://github.com/hnw/php-timecop/archive/master.zip \
+    &amp;amp;&amp;amp; unzip master.zip \
+    &amp;amp;&amp;amp; mv php-timecop-master /usr/src/php/ext/php-timecop \
+    &amp;amp;&amp;amp; docker-php-ext-install php-timecop
+
+RUN mkdir /var/log/httpd/
+RUN mkdir -p /var/log/ci &amp;amp;&amp;amp; chmod 777 /var/log/ci
+COPY load.conf /etc/apache2/mods-enabled/
+COPY klab.conf /etc/apache2/sites-enabled/
+COPY klab_mainte.conf /etc/apache2/sites-enabled/
+COPY php.ini /usr/local/etc/php/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;mbstring, mcrypt, mysql, redis, timecop is the php extension needed by my project.
+Note that they should be installed through offically provided docker-php-ext-install command.
+load.conf contains configure that enables apache module needed by my project, like mod_rewrite.&lt;/p&gt;
+
+&lt;p&gt;klab.conf is the directory configure for my site.&lt;/p&gt;
+
+&lt;p&gt;klab_mainte.conf contains the rewrite rules for my site.&lt;/p&gt;
+
+&lt;p&gt;php.ini is for php configuration, here I only edited the error level, enabled short tags, set timezone.&lt;/p&gt;
+
+&lt;h2 id=&#34;docker-composer:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;docker composer&lt;/h2&gt;
+
+&lt;p&gt;As I need redis container, so I used docker composer with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;web:
+  build: .
+  ports:
+   - &amp;quot;8080:80&amp;quot;
+  volumes:
+   - klab-php:/klab
+  links:
+   - redis
+redis:
+  image: redis
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I used &lt;strong&gt;volumes&lt;/strong&gt; to share my source code with container. The strange thing is that, when I used docker1.4, volumes won&amp;rsquo;t work
+with docker-composer, it just won&amp;rsquo;t mount. But start container directly with -v will work. It is solved as I upgrade my docker to
+1.5.&lt;/p&gt;
+
+&lt;h2 id=&#34;start:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;Start&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;docker-composer up -d&lt;/code&gt;, here we go!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

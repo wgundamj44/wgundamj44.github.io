@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Linux on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/linux/</link>
+    <description>Recent content in Linux on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="http://0.0.0.0/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The meaning of top command</title>
+      <link>http://0.0.0.0/post/2014-12-02-meaning-of-top/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2014-12-02-meaning-of-top/</guid>
+      <description>
+
+&lt;p&gt;Here is a snapshot of top command:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;{{ site.baseurl }}/images/top.png&#34; alt=&#34;top&#34; /&gt;.&lt;/p&gt;
+
+&lt;p&gt;And I searched the meaning of the items:&lt;/p&gt;
+
+&lt;h2 id=&#34;cpu-s:0a18e449d6aaf9358d342541510900e6&#34;&gt;Cpu(s)&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;us: the percentage of time spent on user process&lt;/li&gt;
+&lt;li&gt;sy: the percentage of time spent on system call&lt;/li&gt;
+&lt;li&gt;ni: the percnetage of time spent on user process that is &lt;strong&gt;niced&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;id: idle time&lt;/li&gt;
+&lt;li&gt;wa: cup time spent on waiting for io&lt;/li&gt;
+&lt;li&gt;hi, si: interrupt&lt;/li&gt;
+&lt;li&gt;st: time waiting for hypervisor to serve another virtual cpu (for virtual matchine)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;load-average:0a18e449d6aaf9358d342541510900e6&#34;&gt;load average&lt;/h2&gt;
+
+&lt;p&gt;The three number means the load average of 1, 5, 15 minutes.&lt;/p&gt;
+
+&lt;p&gt;On single core system, 1.00 means cpu is fully utilized, while 0.00 means totally idel, number greater 1.00 means trouble.&lt;/p&gt;
+
+&lt;p&gt;On multicore system, number of cores means fully utilized.&lt;/p&gt;
+
+&lt;p&gt;For this server, it has 32 * 8 = 256 cores, so the 100% load will be 256?&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

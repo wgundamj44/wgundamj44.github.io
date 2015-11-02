@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Django on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/django/</link>
+    <description>Recent content in Django on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 23 Oct 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://0.0.0.0/tags/django/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Solve pylint import error in Django</title>
+      <link>http://0.0.0.0/post/2015-10-23-pylint-import-error-in-django/</link>
+      <pubDate>Fri, 23 Oct 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-10-23-pylint-import-error-in-django/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;m using emacs flycheck with pylint to lint my Django project. Everything goes well except I constantly reports
+import error for my user-defined modules. The system modules are ok, the Django modules are ok too. We know that python uses
+sys.path to search for modules, so the problem must be python interpreter sees different sys.path value to pylint.&lt;/p&gt;
+
+&lt;p&gt;So I created a pylintrc file, and put it in the base folder of my project(the folder contains manage.py), in content is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;[Master]
+init-hook=&#39;import sys; sys.path.append(&amp;quot;/base/folder/of/my/project&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then I found import error disappears. So the reason is clear, pylint lacks the path to the base folder of my project.&lt;/p&gt;
+
+&lt;p&gt;As mentioned in the pydocs, when script invokes the interpreter, the path to this script will be added to the head of sys.path.
+manage.py is the entry script of Django project, so the folder of manage.py will be added to sys.path, as a result, all the modules can be
+import relative to this path. That is why our Django project can import self-made module properly. To mimic this behavior, a properer way of
+writing pylintrc above is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;[Master]
+init-hook=&#39;import sys; sys.path = [&amp;quot;/base/folder/of/my/project&amp;quot;] + sys.path&#39;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Some project notes(4)</title>
+      <link>http://0.0.0.0/post/2015-09-30-project-node-4/</link>
+      <pubDate>Wed, 30 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-09-30-project-node-4/</guid>
+      <description>
+
+&lt;h2 id=&#34;boostrap-of-django:b5247f547e103bba4bcf33f457074e2b&#34;&gt;boostrap of django&lt;/h2&gt;
+
+&lt;h3 id=&#34;class-apps:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Class Apps&lt;/h3&gt;
+
+&lt;p&gt;Everything begins from django.setup(). In this method, it will import django.apps, and as a side effect, &lt;code&gt;apps&lt;/code&gt; is created.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apps&lt;/code&gt; is an instance of django.registry.Apps. This class holds several important fields, &lt;code&gt;all_models&lt;/code&gt; which hold all the mapping of from app labels to model. &lt;code&gt;app_configs&lt;/code&gt; is all the configurations of app in django. When bootstrapping, &lt;code&gt;apps.populate&lt;/code&gt; will be called passing all the apps listed in settings.INSTALLED_APPS. It traverse the apps one by one, and create an &lt;code&gt;AppConfig&lt;/code&gt; for each app, and insert it to &lt;code&gt;app_configs&lt;/code&gt;. When bootstrapped finished, it will call &lt;code&gt;ready&lt;/code&gt; of each app. So, if we what some work to be done after app started, we can do it in ready method of &lt;code&gt;AppConfig&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apps&lt;/code&gt; has a &lt;code&gt;register_model&lt;/code&gt; method, which will insert a model to &lt;code&gt;all_models&lt;/code&gt; of apps. The method is called at &lt;code&gt;ModelBase&lt;/code&gt; of django.db.models.base. We know that for creation of every
+model class, &lt;code&gt;ModelBase&lt;/code&gt; will be called, and inside its &lt;code&gt;__new__&lt;/code&gt; method, it will call register_model to register itself.&lt;/p&gt;
+
+&lt;p&gt;In &lt;code&gt;populate&lt;/code&gt;, for each &lt;code&gt;AppConfig&lt;/code&gt;, it also use &lt;code&gt;import_models&lt;/code&gt; to load models. But here is the misleading part, in the call &lt;code&gt;import_models(all_models)&lt;/code&gt;, all_models is actually None. In &lt;code&gt;import_models&lt;/code&gt;, it will check if this app has a model module, if so it will import the model. When the model is imported, every model class in model module will be created, and &lt;code&gt;ModelBase&lt;/code&gt; will be called. As mentioned above, &lt;code&gt;all_models&lt;/code&gt; will be filled in &lt;code&gt;ModelBase&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;class-appconfig:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Class AppConfig&lt;/h3&gt;
+
+&lt;p&gt;This class hold the informations of an app, eg. name, label, models, etc. AppConfig has a factory method to create itself. When we insert an entry in settings.INSTALLED_APPS, if the
+entry is moudle name, then &lt;code&gt;create&lt;/code&gt; will try to import it. If the imported module has a &lt;code&gt;default_app_config&lt;/code&gt; attribute which is a subclass of AppConfig, then it will be imported, and become the runtime class of &lt;code&gt;AppConfig&lt;/code&gt; instance. Otherwise, the default implmentation of AppConfig will be used.&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;When jdango finishes bootstrap, its &lt;code&gt;django.apps&lt;/code&gt; will contains a &lt;code&gt;app_configs&lt;/code&gt; containing the config infomations for each installed_apps, and &lt;code&gt;all_models&lt;/code&gt; containing all the models.&lt;/p&gt;
+
+&lt;h2 id=&#34;from-request-to-view:b5247f547e103bba4bcf33f457074e2b&#34;&gt;From request to view&lt;/h2&gt;
+
+&lt;p&gt;We start the story from &lt;code&gt;django.core.handlers.wsgi.WSGIHandler&lt;/code&gt;, from experience of werkzeug, we know that this handler is for the handling of request. And it has our old friend &lt;code&gt;__call__(self, environ, start_response)&lt;/code&gt; &amp;ndash; a standard WSGI app function, as mentioned in &lt;a href=&#34;http://0.0.0.0/post/2015-05-21-http-service-in-python/&#34;&gt;this post&lt;/a&gt;. In this function, it does two things: generate a request object, get a response object from request.&lt;/p&gt;
+
+&lt;h3 id=&#34;generate-a-request:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Generate a request&lt;/h3&gt;
+
+&lt;p&gt;The code &lt;code&gt;request = self.request_class(environ)&lt;/code&gt; generates a reqeust object, where request_class is &lt;code&gt;WSGIRequest&lt;/code&gt;. The request object holds lots of information about this coming request, eg. its method, its path, etc. This request object is what we got in request paremter of &lt;code&gt;view_handler(request, xxx)&lt;/code&gt; in views.&lt;/p&gt;
+
+&lt;h3 id=&#34;get-a-response:b5247f547e103bba4bcf33f457074e2b&#34;&gt;Get a response&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;BaseHandler.get_response(self, request)&lt;/code&gt; is where response is generated. It will first go through each request middleware, and try to make a response. Global operation like CSRF prevention happens in this stage. If none of the request middleware made a response, then the request will be matched with URLResovler, and try to find a view method that handles the request. This is were our URL router and view functions get used. If any exception happens, exception middleware will take control and try to make response. Then if response has &lt;code&gt;render&lt;/code&gt; method, template response middleware will get in and render a new response. Finally response middleware proccesses the response and make final response.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Some project notes(3)</title>
+      <link>http://0.0.0.0/post/2015-09-26-project-note-3/</link>
+      <pubDate>Sat, 26 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-09-26-project-note-3/</guid>
+      <description>
+
+&lt;h2 id=&#34;transaction-in-django:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Transaction in Django&lt;/h2&gt;
+
+&lt;h3 id=&#34;atomic:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;atomic&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;@atomic
+def transaction_func():
+    pass
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We know that a decorator will return a wrapper function/class of the decorated function. In Django, the an instance of Atomic class is returned. Atomic is a subclass of ContextDecorator, it is callable because ContextDecorator has a &lt;code&gt;__call__&lt;/code&gt; function.&lt;/p&gt;
+
+&lt;p&gt;In ContextDecorator&amp;rsquo;s &lt;code&gt;__call__&lt;/code&gt;, we can see something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;@wraps(func, assigned=available_attrs(func))
+def inner(*args, **kwargs):
+    with self:
+        return func(*args, **kwargs)
+return inner
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So, the wrapped function will be put into a context &lt;code&gt;self&lt;/code&gt;. In its context control function,
+&lt;code&gt;__enter__&lt;/code&gt; will open a new transaction if not already in one or create a new savepoint if otherwise. &lt;code&gt;__exit__&lt;/code&gt; is rather complex. Generally, if atomic is wrapped in another atomic, then the inner one will be treated as a savepoint if not be told otherwise. when the inner one exits, Django will try to commit the inner savepoint, and rollback the savepoint and set &lt;code&gt;needs_rollback&lt;/code&gt; flag if error occurs. If everything goes well, then in the outermost atomic exits, Django will commit the transaction.&lt;/p&gt;
+
+&lt;h3 id=&#34;database-connections:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;database connections&lt;/h3&gt;
+
+&lt;p&gt;In Django settings, we wrote DATABASES like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;DATABASES = {
+    &#39;default&#39;: {
+        &#39;ENGINE&#39;: &#39;Django.db.backends.mysql&#39;, # Add &#39;postgresql_psycopg2&#39;, &#39;mysql&#39;, &#39;sqlite3&#39; or &#39;oracle&#39;.
+        &#39;NAME&#39;: &#39;&#39;,                      # Or path to database file if using sqlite3.
+        # The following settings are not used with sqlite3:
+        &#39;USER&#39;: &#39;&#39;,
+        &#39;PASSWORD&#39;: &#39;&#39;,
+        &#39;HOST&#39;: &#39;&#39;,                      # Empty for localhost through domain sockets or &#39;127.0.0.1&#39; for localhost through TCP.
+        &#39;PORT&#39;: &#39;&#39;,                      # Set to empty string for default.
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So how this info is used? Django has a class &lt;code&gt;ConnectionHandler&lt;/code&gt;. This class holds the &lt;code&gt;DATABSES&lt;/code&gt; in its &lt;code&gt;_database&lt;/code&gt; dict. Also, it has a &lt;code&gt;_connection&lt;/code&gt; dict, which stores the connections to databases. For example, for our DATABASES above, &lt;code&gt;_connection&lt;/code&gt; will have a &lt;code&gt;default&lt;/code&gt; attribute, with its value the connection instance which talks to the database. All the db manipulations, like transaction, rollback etc. will be carried out through this connection instance.&lt;/p&gt;
+
+&lt;h2 id=&#34;behind-model-class-of-django:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Behind model class of Django&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField(&#39;date published&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When we use the above code to create a model in Django, we get a class &lt;code&gt;Question&lt;/code&gt;. If we try to invoke &lt;code&gt;Question.pub_date&lt;/code&gt;, we get an attribute error saying that pub_date isn&amp;rsquo;t there.
+Instead, in &lt;code&gt;Question._meta.fields&lt;/code&gt; we find these fields. So, models.Model does more than it appears to do.&lt;/p&gt;
+
+&lt;p&gt;In the definition of models.Model, I find it has a base class &lt;code&gt;six.with_metaclass(ModelBase)&lt;/code&gt;. Here its base class is not the simple ModelBase, &lt;code&gt;with_metaclass&lt;/code&gt; made a dummy class like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def with_metaclass(meta, *bases):
+    class metaclass(meta):
+        def __new__(cls, name, this_bases, d):
+            return meta(name, bases, d)
+    return type.__new__(metaclass, &#39;temporary_class&#39;, (), {})
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a python2/3 compatible way of setting metaclass.
+About metaclass, there&amp;rsquo;s an excellent article in &lt;a href=&#34;http://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python&#34;&gt;stackoverflow&lt;/a&gt;. Simply put, metaclass is the class of class or a class is an instance of its metaclass. When a class is defined, the class&amp;rsquo;s metaclass is called to create the class itself.&lt;/p&gt;
+
+&lt;p&gt;So how this with_metaclass works?&lt;/p&gt;
+
+&lt;p&gt;When &lt;code&gt;six.with_metaclass(ModelBase)&lt;/code&gt; is invoked, its return value is a class. This class is an instance of &lt;code&gt;metaclass&lt;/code&gt;, as &lt;code&gt;type.__new__(metaclass)&lt;/code&gt; implies. Now &lt;code&gt;Model&lt;/code&gt;&amp;rsquo;s base class (The return value of &lt;code&gt;with_metaclass&lt;/code&gt;) is a class whose &lt;strong&gt;class&lt;/strong&gt; will be &lt;code&gt;metaclass&lt;/code&gt;. According to &lt;a href=&#34;https://docs.python.org/2/reference/datamodel.html#__metaclass__&#34;&gt;python doc&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;if there is at least one base class, its metaclass is used
+(this looks for a &lt;strong&gt;class&lt;/strong&gt; attribute first and if not found, uses its type)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;code&gt;Model&lt;/code&gt;&amp;rsquo;s metaclass will be &lt;code&gt;metaclass&lt;/code&gt;, so will all its sub classes. As a result, when &lt;code&gt;Question&lt;/code&gt; is defined, &lt;code&gt;__new__&lt;/code&gt; of &lt;code&gt;metaclass&lt;/code&gt; will be called to create &lt;code&gt;Question&lt;/code&gt; class, and it returns an instance of &lt;code&gt;ModelBase&lt;/code&gt;, this instance becomes the content of &lt;code&gt;Question&lt;/code&gt; class we saw.&lt;/p&gt;
+
+&lt;p&gt;How does &lt;code&gt;ModelBase&lt;/code&gt; create the content of &lt;code&gt;Question&lt;/code&gt;?&lt;/p&gt;
+
+&lt;p&gt;First thing I can see is that, it attach &lt;code&gt;_meta&lt;/code&gt; object to model class. _meta is an object of class &lt;code&gt;Options&lt;/code&gt;. This &lt;code&gt;Options&lt;/code&gt; holds many information about model, including primary key, app_label, fields, etc. Attributes in &lt;code&gt;Meta&lt;/code&gt; Class of Model will be stored here. This can answer our problem of where has the fields gone? They were added to _meta in the &lt;code&gt;__new__&lt;/code&gt; of &lt;code&gt;ModelBase&lt;/code&gt;. Interestingly, fields is actually a method in &lt;code&gt;Options&lt;/code&gt;, when called return a list on the fly.&lt;/p&gt;
+
+&lt;p&gt;Second, install &lt;code&gt;Manager&lt;/code&gt; of model. This is VERY complex, the behavior depends heavily on if the model is abstract, proxy or its parents. Anyway, at least &lt;code&gt;ensure_default_manager&lt;/code&gt; will be called, so that we can call &lt;code&gt;Question.objects&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Third, add &lt;code&gt;DoesNotExist&lt;/code&gt; and &lt;code&gt;MultipleObjectsReturned&lt;/code&gt; exception for model.&lt;/p&gt;
+
+&lt;h2 id=&#34;many-methods-of-manager-belongs-to-queryset:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Many methods of Manager belongs to QuerySet&lt;/h2&gt;
+
+&lt;p&gt;We often use something like &lt;code&gt;Question.objects.filter()&lt;/code&gt;, actually this method comes from class &lt;code&gt;QuerySet&lt;/code&gt;. The definition of &lt;code&gt;Manager&lt;/code&gt; is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class Manager(BaseManager.from_queryset(QuerySet)):
+    pass
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;from_queryset&lt;/code&gt; is a classmethod, it will &amp;lsquo;copy&amp;rsquo; necessary methods from QuerySet into BaseManager. This &amp;lsquo;copy&amp;rsquo; is a delegation, when we call &lt;code&gt;filter&lt;/code&gt; on &lt;code&gt;Manager&lt;/code&gt;, what happens is that the Manager instance will call the same function on the &lt;code&gt;queryset&lt;/code&gt; obtained by calling &lt;code&gt;get_queryset&lt;/code&gt;. That&amp;rsquo;s why when customizing Managers, we often override the &lt;code&gt;get_queryset&lt;/code&gt; method, so that any following query functions will all carried out based on the customized &lt;code&gt;queryset&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;fields-in-django-orm:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;Fields in Django ORM&lt;/h2&gt;
+
+&lt;h2 id=&#34;how-query-is-generated-in-django-orm:b35bf9b141e6de095a24e0cf55cb1975&#34;&gt;How query is generated in Django ORM&lt;/h2&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

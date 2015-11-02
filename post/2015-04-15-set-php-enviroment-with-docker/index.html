@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Set up PHP enviroment with Docker  &middot; Notes of wgundamj44</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="php, docker, ">
+
+
+<meta property="og:title" content="Set up PHP enviroment with Docker  &middot; Notes of wgundamj44 ">
+<meta property="og:site_name" content="Notes of wgundamj44"/>
+<meta property="og:url" content="http://0.0.0.0/post/2015-04-15-set-php-enviroment-with-docker/" />
+<meta property="og:locale" content="en-us">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="0001-01-01T00:00:00Z" />
+<meta property="og:article:modified_time" content="0001-01-01T00:00:00Z" />
+
+  
+    
+<meta property="og:article:tag" content="php">
+    
+<meta property="og:article:tag" content="docker">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Set up PHP enviroment with Docker" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="http://0.0.0.0/post/2015-04-15-set-php-enviroment-with-docker/" />
+<meta name="twitter:domain" content="http://0.0.0.0/">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Set up PHP enviroment with Docker",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "0001-01-01",
+    "description": "",
+    "wordCount":  299 
+  }
+</script>
+
+
+
+<link rel="canonical" href="http://0.0.0.0/post/2015-04-15-set-php-enviroment-with-docker/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://0.0.0.0/touch-icon-144-precomposed.png">
+<link href="http://0.0.0.0/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.15-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://0.0.0.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/style.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/highlight/solarized_light.css">
+
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="http://0.0.0.0/">
+  Notes of wgundamj44
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+
+  
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>Set up PHP enviroment with Docker
+</h1>
+
+  <div class="metas">
+<time datetime="0001-01-01">1 Jan, 0001</time>
+
+
+  
+  &middot; Read in about 2 min
+  &middot; (299 Words)
+  <br>
+  
+<a class="label" href="http://0.0.0.0/tags/php">php</a>
+
+<a class="label" href="http://0.0.0.0/tags/docker">docker</a>
+
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>Set up PHP develop eviroment with docker.</p>
+
+<h2 id="docker-image:c3dd6ac30f5bedccb58bb4297dbd9332">docker image</h2>
+
+<p>I created my image based on offical 5.5-apache image, with following:</p>
+
+<pre><code class="language-bash">FROM php:5.5-apache
+
+# install wget and unzip in order to install php extensions from github
+RUN apt-get update &amp;&amp; apt-get install -y wget unzip
+
+
+# enable mbstirng as we can't controll the compilation flag of php
+RUN docker-php-ext-install mbstring
+
+# install mcrypt and pdo
+RUN apt-get update &amp;&amp; apt-get install -y libmcrypt-dev \
+    &amp;&amp; docker-php-ext-install mcrypt \
+    &amp;&amp; docker-php-ext-install mysql
+
+# install redis extension
+WORKDIR /root
+RUN wget https://github.com/nicolasff/phpredis/archive/2.2.5.zip \
+    &amp;&amp; unzip 2.2.5.zip \ 
+    &amp;&amp; mv phpredis-2.2.5 /usr/src/php/ext/phpredis \
+    &amp;&amp; docker-php-ext-install phpredis
+#RUN cp /usr/local/etc/php/conf.d/ext-phpredis-2.2.5.ini /etc/php5/mods-available/redis.ini
+
+# install timecop
+RUN wget https://github.com/hnw/php-timecop/archive/master.zip \
+    &amp;&amp; unzip master.zip \
+    &amp;&amp; mv php-timecop-master /usr/src/php/ext/php-timecop \
+    &amp;&amp; docker-php-ext-install php-timecop
+
+RUN mkdir /var/log/httpd/
+RUN mkdir -p /var/log/ci &amp;&amp; chmod 777 /var/log/ci
+COPY load.conf /etc/apache2/mods-enabled/
+COPY klab.conf /etc/apache2/sites-enabled/
+COPY klab_mainte.conf /etc/apache2/sites-enabled/
+COPY php.ini /usr/local/etc/php/
+</code></pre>
+
+<p>mbstring, mcrypt, mysql, redis, timecop is the php extension needed by my project.
+Note that they should be installed through offically provided docker-php-ext-install command.
+load.conf contains configure that enables apache module needed by my project, like mod_rewrite.</p>
+
+<p>klab.conf is the directory configure for my site.</p>
+
+<p>klab_mainte.conf contains the rewrite rules for my site.</p>
+
+<p>php.ini is for php configuration, here I only edited the error level, enabled short tags, set timezone.</p>
+
+<h2 id="docker-composer:c3dd6ac30f5bedccb58bb4297dbd9332">docker composer</h2>
+
+<p>As I need redis container, so I used docker composer with:</p>
+
+<pre><code class="language-yaml">web:
+  build: .
+  ports:
+   - &quot;8080:80&quot;
+  volumes:
+   - klab-php:/klab
+  links:
+   - redis
+redis:
+  image: redis
+</code></pre>
+
+<p>I used <strong>volumes</strong> to share my source code with container. The strange thing is that, when I used docker1.4, volumes won&rsquo;t work
+with docker-composer, it just won&rsquo;t mount. But start container directly with -v will work. It is solved as I upgrade my docker to
+1.5.</p>
+
+<h2 id="start:c3dd6ac30f5bedccb58bb4297dbd9332">Start</h2>
+
+<p><code>docker-composer up -d</code>, here we go!</p>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="http://0.0.0.0/post/2014-12-02-meaning-of-top/" title="The meaning of top command">
+      Previous
+    </a>
+    
+
+    
+    <a class="next" href="http://0.0.0.0/post/2015-2-26-mysql-null/" title="NULL or NOT NULL">
+      Next
+    </a>
+    
+
+  
+
+
+</div>
+
+  <div class="container comments">
+  <h2>Comments</h2>
+  
+
+</div>
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+
+</div>
+
+
+  
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="http://0.0.0.0/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+  </body>
+</html>
+

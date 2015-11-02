@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>An analysis of GvG event  &middot; Notes of wgundamj44</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="performance, ">
+
+
+<meta property="og:title" content="An analysis of GvG event  &middot; Notes of wgundamj44 ">
+<meta property="og:site_name" content="Notes of wgundamj44"/>
+<meta property="og:url" content="http://0.0.0.0/post/2014-11-12-gvg-status/" />
+<meta property="og:locale" content="en-us">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="0001-01-01T00:00:00Z" />
+<meta property="og:article:modified_time" content="0001-01-01T00:00:00Z" />
+
+  
+    
+<meta property="og:article:tag" content="performance">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="An analysis of GvG event" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="http://0.0.0.0/post/2014-11-12-gvg-status/" />
+<meta name="twitter:domain" content="http://0.0.0.0/">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "An analysis of GvG event",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "0001-01-01",
+    "description": "",
+    "wordCount":  267 
+  }
+</script>
+
+
+
+<link rel="canonical" href="http://0.0.0.0/post/2014-11-12-gvg-status/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://0.0.0.0/touch-icon-144-precomposed.png">
+<link href="http://0.0.0.0/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.15-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://0.0.0.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/style.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/highlight/solarized_light.css">
+
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="http://0.0.0.0/">
+  Notes of wgundamj44
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+
+  
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>An analysis of GvG event
+</h1>
+
+  <div class="metas">
+<time datetime="0001-01-01">1 Jan, 0001</time>
+
+
+  
+  &middot; Read in about 2 min
+  &middot; (267 Words)
+  <br>
+  
+<a class="label" href="http://0.0.0.0/tags/performance">performance</a>
+
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<h2 id="summary-of-gvg-event:afe463e62ffac07f8589ee0e884ac16f">Summary of GvG event</h2>
+
+<p>A kind of Guild VS Guild event.</p>
+
+<p>Last period 2014-10-09 ~ 2014-10-16. 12:00:00 ~ 12:59:59, 22:00:00 ~ 22:59:59 twice everyday.</p>
+
+<p>Average access user is about 4000. Access is concentrated in one hour, so the load was heavy.</p>
+
+<p>There&rsquo;re 4 web servers to handle the access, DB is one master, one slave.</p>
+
+<p>There&rsquo;s a serious bug in the initial versions so the load average is crazily high. In about 10-12, we fixed the bugs so
+the performace after 10-12 is more reiable.</p>
+
+<h2 id="the-bug:afe463e62ffac07f8589ee0e884ac16f">The bug</h2>
+
+<pre><code>SELECT last_insert_id()
+</code></pre>
+
+<p>VS</p>
+
+<pre><code>SELECT last_insert_id() FROM xxx
+</code></pre>
+
+<p>The former will return the id of last inserted record, while the latter will return last inserted id for EVERY RECORD in the table, which
+blowed up our application.</p>
+
+<h2 id="before:afe463e62ffac07f8589ee0e884ac16f">Before</h2>
+
+<ul>
+<li>number of access per sec:</li>
+</ul>
+
+<p><img src="/2014-11-12-access1.png" alt="number of access" /></p>
+
+<ul>
+<li>response time:</li>
+</ul>
+
+<p><img src="/2014-11-12-time1.png" alt="response time" /></p>
+
+<ul>
+<li>cpu load average:</li>
+</ul>
+
+<p><img src="/2014-11-12-load1.png" alt="load average" /></p>
+
+<p>Response slows as requests increase. Also we can see that, because of the slow query the cpu load reaches as high as 5 at peak time.</p>
+
+<h2 id="after-fix:afe463e62ffac07f8589ee0e884ac16f">After fix</h2>
+
+<ul>
+<li>number of access per sec:</li>
+</ul>
+
+<p><img src="/2014-11-12-access2.png" alt="number of access" /></p>
+
+<ul>
+<li>response time:</li>
+</ul>
+
+<p><img src="/2014-11-12-time2.png" alt="response time" /></p>
+
+<ul>
+<li>cpu load average:</li>
+</ul>
+
+<p><img src="/2014-11-12-load2.png" alt="load average" /></p>
+
+<p>After the bug is fixed, the load average returns to a reasonable level.</p>
+
+<h2 id="some-addtional-figures:afe463e62ffac07f8589ee0e884ac16f">Some Addtional Figures</h2>
+
+<ul>
+<li>QPS</li>
+</ul>
+
+<p>At peak time, the master has qps of about 3k, among the operations, select operation consists 60% which is about 2k qps, while
+update and insert is 300 and 500 respectively.</p>
+
+<ul>
+<li>Response Time</li>
+</ul>
+
+<p>0 ~ 100ms is mostly access time of static files. 100 ~ 200ms is considered as &ldquo;Good&rdquo; response time. When response time reaches 200ms or more, the request should be especially pay attention to, because they will surely kill the game if come to frequently.</p>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="http://0.0.0.0/post/2014-09-27-dev-with-vagrant/" title="Development Enviroment with Vagrant">
+      Previous
+    </a>
+    
+
+    
+    <a class="next" href="http://0.0.0.0/post/2014-11-17-flycheck/" title="About flycheck">
+      Next
+    </a>
+    
+
+  
+
+
+</div>
+
+  <div class="container comments">
+  <h2>Comments</h2>
+  
+
+</div>
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+
+</div>
+
+
+  
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="http://0.0.0.0/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+  </body>
+</html>
+

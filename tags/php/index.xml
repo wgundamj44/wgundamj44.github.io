@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Php on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/php/</link>
+    <description>Recent content in Php on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 01 May 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://0.0.0.0/tags/php/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How much memory does PHP array take?</title>
+      <link>http://0.0.0.0/post/2014-05-01-php-memory/</link>
+      <pubDate>Fri, 01 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2014-05-01-php-memory/</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve read an interesting article talking about how much memory does PHP array take.
+Here is the summary.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;                             |  64 bit   | 32 bit
+---------------------------------------------------
+zval                         |  24 bytes | 16 bytes
++ cyclic GC info             |   8 bytes |  4 bytes
++ allocation header          |  16 bytes |  8 bytes
+===================================================
+zval (value) total           |  48 bytes | 28 bytes
+===================================================
+bucket                       |  72 bytes | 36 bytes
++ allocation header          |  16 bytes |  8 bytes
++ pointer                    |   8 bytes |  4 bytes
+===================================================
+bucket (array element) total |  96 bytes | 48 bytes
+===================================================
+total total                  | 144 bytes | 76 bytes
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here are the details of each components:&lt;/p&gt;
+
+&lt;h3 id=&#34;zval:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;zval&lt;/h3&gt;
+
+&lt;p&gt;zval is the internal representation of PHP variables.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;struct _zval_struct {
+    zvalue_value value;     // The value
+    zend_uint refcount__gc; // The number of references to this value (for GC)
+    zend_uchar type;        // The type
+    zend_uchar is_ref__gc;  // Whether this value is a reference (&amp;amp;)
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and zvalue_value looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;typedef union _zvalue_value {
+    long lval;                // For integers and booleans
+    double dval;              // For floats (doubles)
+    struct {                  // For strings
+        char *val;            //     consisting of the string itself
+        int len;              //     and its length
+    } str;
+    HashTable *ht;            // For arrays (hash tables)
+    zend_object_value obj;    // For objects
+} zvalue_value
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The size of zvalue_value is the max of each member, which is str member that takes 12 bytes. Take padding into account, it gives us 16 bytes. So the sum of zval will be 16 + 4 + 1 + 1, which is 22 bytes and padded to 24 bytes in total.&lt;/p&gt;
+
+&lt;h3 id=&#34;cyclic-gc-info:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;cyclic GC info&lt;/h3&gt;
+
+&lt;p&gt;Starts at PHP5.3, it introduced garbage collector for cyclic reference. So it wraps zval into this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;typedef struct _zval_gc_info {
+    zval z;
+    union {
+        gc_root_buffer       *buffered;
+        struct _zval_gc_info *next;
+    } u;
+} zval_gc_info;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So the sum will be 24 + 8 = 32 bytes.&lt;/p&gt;
+
+&lt;h3 id=&#34;allocation-header:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;allocation header&lt;/h3&gt;
+
+&lt;p&gt;Here is the unexpected part: In order to keep track of allocated memories, PHP add allocation header to every allocation done throught it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;typedef struct _zend_mm_block {
+    zend_mm_block_info info;
+#if ZEND_DEBUG
+    unsigned int magic;
+# ifdef ZTS
+    THREAD_T thread_id;
+# endif
+    zend_mm_debug_info debug;
+#elif ZEND_MM_HEAP_PROTECTION
+    zend_mm_debug_info debug;
+#endif
+} zend_mm_block;
+
+typedef struct _zend_mm_block_info {
+#if ZEND_MM_COOKIES
+    size_t _cookie;
+#endif
+    size_t _size; // size of the allocation
+    size_t _prev; // previous block (not sure what exactly this is)
+} zend_mm_block_info;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can&amp;rsquo;t understand above well, but when all the options turned off, the size of above structure is 16 bytes.
+Now we get 48 bytes for each varibale.&lt;/p&gt;
+
+&lt;h3 id=&#34;buckets:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;Buckets&lt;/h3&gt;
+
+&lt;p&gt;As we know, the Array in PHP is in fact Hash table. Every element is in a bucket. The bucket is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;typedef struct bucket {
+    ulong h;                  // The hash (or for int keys the key)
+    uint nKeyLength;          // The length of the key (for string keys)
+    void *pData;              // The actual data
+    void *pDataPtr;           // ??? What&#39;s this ???
+    struct bucket *pListNext; // PHP arrays are ordered. This gives the next element in that order
+    struct bucket *pListLast; // and this gives the previous element
+    struct bucket *pNext;     // The next element in this (doubly) linked list
+    struct bucket *pLast;     // The previous element in this (doubly) linked list
+    const char *arKey;        // The key (for string keys)
+} Bucket;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The size of above structure is 68 bytes, padding to 72 bytes. Every bucket itself is dynamically allocated, adding addtional 16 bytes from allocation header, sums up to 88 bytes. Also, the pointer to each buckets cost 8 bytes, so the final results is 96 bytes.&lt;/p&gt;
+
+&lt;p&gt;Here we come at the results that: each element in array costs: 96 bytes for bucket and 48 bytes for zval = 144 bytes total.
+10000 element array will costs: 13.73MB.&lt;/p&gt;
+
+&lt;h3 id=&#34;array-size-allocation:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;Array size allocation&lt;/h3&gt;
+
+&lt;p&gt;Like vector in STL, size of contailer is not increased one by one. Instead, when size reaches pre-allocated limit, 2 times of the existing memory will allocated. As a result, the actual array size will be larger than the sum of its elements.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:0ffd47b925e5a07089257c9f74df4eff&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;PHP is the BEST language. HAHA..&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Set up PHP enviroment with Docker</title>
+      <link>http://0.0.0.0/post/2015-04-15-set-php-enviroment-with-docker/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-04-15-set-php-enviroment-with-docker/</guid>
+      <description>
+
+&lt;p&gt;Set up PHP develop eviroment with docker.&lt;/p&gt;
+
+&lt;h2 id=&#34;docker-image:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;docker image&lt;/h2&gt;
+
+&lt;p&gt;I created my image based on offical 5.5-apache image, with following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;FROM php:5.5-apache
+
+# install wget and unzip in order to install php extensions from github
+RUN apt-get update &amp;amp;&amp;amp; apt-get install -y wget unzip
+
+
+# enable mbstirng as we can&#39;t controll the compilation flag of php
+RUN docker-php-ext-install mbstring
+
+# install mcrypt and pdo
+RUN apt-get update &amp;amp;&amp;amp; apt-get install -y libmcrypt-dev \
+    &amp;amp;&amp;amp; docker-php-ext-install mcrypt \
+    &amp;amp;&amp;amp; docker-php-ext-install mysql
+
+# install redis extension
+WORKDIR /root
+RUN wget https://github.com/nicolasff/phpredis/archive/2.2.5.zip \
+    &amp;amp;&amp;amp; unzip 2.2.5.zip \ 
+    &amp;amp;&amp;amp; mv phpredis-2.2.5 /usr/src/php/ext/phpredis \
+    &amp;amp;&amp;amp; docker-php-ext-install phpredis
+#RUN cp /usr/local/etc/php/conf.d/ext-phpredis-2.2.5.ini /etc/php5/mods-available/redis.ini
+
+# install timecop
+RUN wget https://github.com/hnw/php-timecop/archive/master.zip \
+    &amp;amp;&amp;amp; unzip master.zip \
+    &amp;amp;&amp;amp; mv php-timecop-master /usr/src/php/ext/php-timecop \
+    &amp;amp;&amp;amp; docker-php-ext-install php-timecop
+
+RUN mkdir /var/log/httpd/
+RUN mkdir -p /var/log/ci &amp;amp;&amp;amp; chmod 777 /var/log/ci
+COPY load.conf /etc/apache2/mods-enabled/
+COPY klab.conf /etc/apache2/sites-enabled/
+COPY klab_mainte.conf /etc/apache2/sites-enabled/
+COPY php.ini /usr/local/etc/php/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;mbstring, mcrypt, mysql, redis, timecop is the php extension needed by my project.
+Note that they should be installed through offically provided docker-php-ext-install command.
+load.conf contains configure that enables apache module needed by my project, like mod_rewrite.&lt;/p&gt;
+
+&lt;p&gt;klab.conf is the directory configure for my site.&lt;/p&gt;
+
+&lt;p&gt;klab_mainte.conf contains the rewrite rules for my site.&lt;/p&gt;
+
+&lt;p&gt;php.ini is for php configuration, here I only edited the error level, enabled short tags, set timezone.&lt;/p&gt;
+
+&lt;h2 id=&#34;docker-composer:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;docker composer&lt;/h2&gt;
+
+&lt;p&gt;As I need redis container, so I used docker composer with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;web:
+  build: .
+  ports:
+   - &amp;quot;8080:80&amp;quot;
+  volumes:
+   - klab-php:/klab
+  links:
+   - redis
+redis:
+  image: redis
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I used &lt;strong&gt;volumes&lt;/strong&gt; to share my source code with container. The strange thing is that, when I used docker1.4, volumes won&amp;rsquo;t work
+with docker-composer, it just won&amp;rsquo;t mount. But start container directly with -v will work. It is solved as I upgrade my docker to
+1.5.&lt;/p&gt;
+
+&lt;h2 id=&#34;start:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;Start&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;docker-composer up -d&lt;/code&gt;, here we go!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

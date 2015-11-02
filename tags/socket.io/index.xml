@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Socket.Io on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/socket/index.io/</link>
+    <description>Recent content in Socket.Io on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="http://0.0.0.0/tags/socket.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Tried to read socket.io source code</title>
+      <link>http://0.0.0.0/post/2015-03-05-socket-io-source/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-03-05-socket-io-source/</guid>
+      <description>
+
+&lt;p&gt;Some important parts of socket.io.&lt;/p&gt;
+
+&lt;h3 id=&#34;manager:256a5205d6d47822ca380b71d52903dd&#34;&gt;Manager&lt;/h3&gt;
+
+&lt;p&gt;This is the main interface of socket.io. &lt;code&gt;require(&#39;socket.io&#39;).listen()&lt;/code&gt; returns a Manager (the io object).&lt;/p&gt;
+
+&lt;p&gt;Manager holds a server, which is the instance of nodejs server; a namespaces, which is the collections of all namespaces; a settings, which holds the customizable setting info. a sockets, which is the default namespace.&lt;/p&gt;
+
+&lt;h4 id=&#34;new-exports-manager-server-options-workflow:256a5205d6d47822ca380b71d52903dd&#34;&gt;&lt;code&gt;new exports.Manager(server, options)&lt;/code&gt; workflow:&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;init all the members including server, namespaces, sockets, settings.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;server.on(&#39;request&#39;...&lt;/code&gt; use &lt;code&gt;handleRequest&lt;/code&gt; to handle server request.&lt;/li&gt;
+&lt;li&gt;sockets is a bad name, because is actually refers to &amp;ldquo;&amp;rdquo; namespace, as &lt;code&gt;this.sockets = this.of(&#39;&#39;)&lt;/code&gt; shows.&lt;/li&gt;
+&lt;li&gt;init store
+
+&lt;ul&gt;
+&lt;li&gt;here the store subscribes lots of messages like handshaken, connect, open, join, leave, etc. and call the corresponding method&lt;/li&gt;
+&lt;li&gt;init &lt;code&gt;handshaken&lt;/code&gt;, &lt;code&gt;connected&lt;/code&gt;, &lt;code&gt;open&lt;/code&gt;, &lt;code&gt;closed&lt;/code&gt;, &lt;code&gt;rooms&lt;/code&gt;, &lt;code&gt;roomClients&lt;/code&gt;. These are important controll objects.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;init transports, transports are underlying data transporation modules.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;handshake:256a5205d6d47822ca380b71d52903dd&#34;&gt;handshake&lt;/h3&gt;
+
+&lt;p&gt;The first step of websocket is shandshake. client inits a http request inicating itself as a websocket request, the server indentifies it and start websocket communication.
+Here is how it works in socket.io:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;handleRequest: when request comes, this method is called. In this method, &lt;code&gt;checkRequest&lt;/code&gt; is used to extract messsages from rquest data. When request data &lt;strong&gt;doesn&amp;rsquo;t&lt;/strong&gt; have an id, then it is considered as a handshake, and handleHandshake will be called.&lt;/li&gt;
+&lt;li&gt;handleHandshake: This method first extracts handshake data from request data with &lt;code&gt;handshakeData&lt;/code&gt; method.
+
+&lt;ul&gt;
+&lt;li&gt;authorize method can be used to authoriztion. authoriztion method can be passed from outside with set method.&lt;/li&gt;
+&lt;li&gt;If authorization succeeded, then success is returned. Here the unique id for this connection is created, and be used everywhere.&lt;/li&gt;
+&lt;li&gt;onHandshake: It is called after response, sets handshaken object with id as key, and handshake data as value.&lt;/li&gt;
+&lt;li&gt;Also, &lt;code&gt;handshake&lt;/code&gt; message is published.&lt;/li&gt;
+&lt;li&gt;Now connection is established.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;send-and-receive-message:256a5205d6d47822ca380b71d52903dd&#34;&gt;send and receive message&lt;/h3&gt;
+
+&lt;p&gt;To receive messages from client, the workflow is the same as handshake, except that &lt;code&gt;handleHTTPRequest&lt;/code&gt; is used instead of &lt;code&gt;handleHandshake&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;handlehttprequest:256a5205d6d47822ca380b71d52903dd&#34;&gt;handleHTTPRequest&lt;/h4&gt;
+
+&lt;p&gt;&lt;code&gt;handleClient&lt;/code&gt; will do the actual work.&lt;/p&gt;
+
+&lt;h4 id=&#34;handleclient:256a5205d6d47822ca380b71d52903dd&#34;&gt;handleClient&lt;/h4&gt;
+
+&lt;h5 id=&#34;why-onhandshake-for-second-time-here:256a5205d6d47822ca380b71d52903dd&#34;&gt;why onHandshake for second time here??&lt;/h5&gt;
+
+&lt;p&gt;Because when client get disconnected, it will try to reconnect for sometime, and will enter handleClient.&lt;/p&gt;
+
+&lt;p&gt;Important parts are:
+Here is where connect event of client is fired:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;if (i === &#39;&#39;) {
+  this.namespaces[i].handlePacket(data.id, { type: &#39;connect&#39; });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here is how message of specific connection can be listend:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;this.store.subscribe(&#39;message:&#39; + data.id, function (packet) {
+   self.onClientMessage(data.id, packet);
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I think we can use this to communicate with connection from outside of nodejs. For example, when redis store is used, we can publish &lt;code&gt;message:111&lt;/code&gt; from other program, say a php batch, to notify something to the connection with id 111. &lt;strong&gt;Update: too simple, sometimes naive&lt;/strong&gt;: After a close look at the code, I found this is difficut as the data of message is the packet itself.&lt;/p&gt;
+
+&lt;p&gt;The real code to send packet back to user is done by namespaces.&lt;/p&gt;
+
+&lt;h3 id=&#34;socketnamespace:256a5205d6d47822ca380b71d52903dd&#34;&gt;SocketNamespace&lt;/h3&gt;
+
+&lt;p&gt;The packet is handled by &lt;code&gt;handlePacket&lt;/code&gt; method.
+The important member is &lt;code&gt;socket&lt;/code&gt;, which is the socket we got in &lt;code&gt;io.sockets.on(&#39;connection&#39;, funtion(socket) {}&lt;/code&gt;. socket.io has one socket for each connection identified by id. In handlePacket method, itdoes different things based on &lt;code&gt;pacekt.type&lt;/code&gt;. Here we can find why &lt;code&gt;socket.on(xxx, function() {})&lt;/code&gt; can work, in fact it calls &lt;code&gt;socket.$emit.apply(socket, params)&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;connect:256a5205d6d47822ca380b71d52903dd&#34;&gt;connect&lt;/h4&gt;
+
+&lt;p&gt;In &lt;code&gt;packet&lt;/code&gt; method, it does different things based on packet.type. When type is connect, then connection event is emitted, and our &lt;code&gt;io.sockets.on(&#39;connection&#39;)&lt;/code&gt; will be called. Also here, we will call &lt;code&gt;socket.packet({ type: &#39;connect&#39;})&lt;/code&gt; to send connect packet back to client, so that client&amp;rsquo;s &amp;lsquo;on connect&amp;rsquo; will be called.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;TODO&lt;/strong&gt; ack&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;packet&lt;/code&gt; method of SocketNamespace calls Manager&amp;rsquo;s onDispath which in turn calls transport&amp;rsquo;s onDispatch to send the packet.&lt;/p&gt;
+
+&lt;h3 id=&#34;transport:256a5205d6d47822ca380b71d52903dd&#34;&gt;Transport&lt;/h3&gt;
+
+&lt;p&gt;Transport is where the transition of data is carried out. We only focus on websocket. There&amp;rsquo;re several subclass represents different sub protocal of websocket, the &lt;code&gt;onDispatch&lt;/code&gt; called write method of its sub class. I only searched in default.js. In default.js, there&amp;rsquo;s a &lt;code&gt;write&lt;/code&gt; method finally writes data buffer into socket.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

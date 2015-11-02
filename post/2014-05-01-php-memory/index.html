@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>How much memory does PHP array take?  &middot; Notes of wgundamj44</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="php, ">
+
+
+<meta property="og:title" content="How much memory does PHP array take?  &middot; Notes of wgundamj44 ">
+<meta property="og:site_name" content="Notes of wgundamj44"/>
+<meta property="og:url" content="http://0.0.0.0/post/2014-05-01-php-memory/" />
+<meta property="og:locale" content="en-us">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2015-05-01T00:00:00Z" />
+<meta property="og:article:modified_time" content="2015-05-01T00:00:00Z" />
+
+  
+    
+<meta property="og:article:tag" content="php">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="How much memory does PHP array take?" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="http://0.0.0.0/post/2014-05-01-php-memory/" />
+<meta name="twitter:domain" content="http://0.0.0.0/">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "How much memory does PHP array take?",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2015-05-01",
+    "description": "",
+    "wordCount":  675 
+  }
+</script>
+
+
+
+<link rel="canonical" href="http://0.0.0.0/post/2014-05-01-php-memory/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://0.0.0.0/touch-icon-144-precomposed.png">
+<link href="http://0.0.0.0/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.15-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://0.0.0.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/style.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/highlight/solarized_light.css">
+
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="http://0.0.0.0/">
+  Notes of wgundamj44
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+
+  
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>How much memory does PHP array take?
+</h1>
+
+  <div class="metas">
+<time datetime="2015-05-01">1 May, 2015</time>
+
+
+  
+  &middot; Read in about 4 min
+  &middot; (675 Words)
+  <br>
+  
+<a class="label" href="http://0.0.0.0/tags/php">php</a>
+
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>I&rsquo;ve read an interesting article talking about how much memory does PHP array take.
+Here is the summary.</p>
+
+<pre><code>                             |  64 bit   | 32 bit
+---------------------------------------------------
+zval                         |  24 bytes | 16 bytes
++ cyclic GC info             |   8 bytes |  4 bytes
++ allocation header          |  16 bytes |  8 bytes
+===================================================
+zval (value) total           |  48 bytes | 28 bytes
+===================================================
+bucket                       |  72 bytes | 36 bytes
++ allocation header          |  16 bytes |  8 bytes
++ pointer                    |   8 bytes |  4 bytes
+===================================================
+bucket (array element) total |  96 bytes | 48 bytes
+===================================================
+total total                  | 144 bytes | 76 bytes
+</code></pre>
+
+<p>Here are the details of each components:</p>
+
+<h3 id="zval:0ffd47b925e5a07089257c9f74df4eff">zval</h3>
+
+<p>zval is the internal representation of PHP variables.</p>
+
+<pre><code class="language-c">struct _zval_struct {
+    zvalue_value value;     // The value
+    zend_uint refcount__gc; // The number of references to this value (for GC)
+    zend_uchar type;        // The type
+    zend_uchar is_ref__gc;  // Whether this value is a reference (&amp;)
+};
+</code></pre>
+
+<p>and zvalue_value looks like this:</p>
+
+<pre><code class="language-c">typedef union _zvalue_value {
+    long lval;                // For integers and booleans
+    double dval;              // For floats (doubles)
+    struct {                  // For strings
+        char *val;            //     consisting of the string itself
+        int len;              //     and its length
+    } str;
+    HashTable *ht;            // For arrays (hash tables)
+    zend_object_value obj;    // For objects
+} zvalue_value
+</code></pre>
+
+<p>The size of zvalue_value is the max of each member, which is str member that takes 12 bytes. Take padding into account, it gives us 16 bytes. So the sum of zval will be 16 + 4 + 1 + 1, which is 22 bytes and padded to 24 bytes in total.</p>
+
+<h3 id="cyclic-gc-info:0ffd47b925e5a07089257c9f74df4eff">cyclic GC info</h3>
+
+<p>Starts at PHP5.3, it introduced garbage collector for cyclic reference. So it wraps zval into this:</p>
+
+<pre><code class="language-c">typedef struct _zval_gc_info {
+    zval z;
+    union {
+        gc_root_buffer       *buffered;
+        struct _zval_gc_info *next;
+    } u;
+} zval_gc_info;
+</code></pre>
+
+<p>So the sum will be 24 + 8 = 32 bytes.</p>
+
+<h3 id="allocation-header:0ffd47b925e5a07089257c9f74df4eff">allocation header</h3>
+
+<p>Here is the unexpected part: In order to keep track of allocated memories, PHP add allocation header to every allocation done throught it:</p>
+
+<pre><code class="language-c">typedef struct _zend_mm_block {
+    zend_mm_block_info info;
+#if ZEND_DEBUG
+    unsigned int magic;
+# ifdef ZTS
+    THREAD_T thread_id;
+# endif
+    zend_mm_debug_info debug;
+#elif ZEND_MM_HEAP_PROTECTION
+    zend_mm_debug_info debug;
+#endif
+} zend_mm_block;
+
+typedef struct _zend_mm_block_info {
+#if ZEND_MM_COOKIES
+    size_t _cookie;
+#endif
+    size_t _size; // size of the allocation
+    size_t _prev; // previous block (not sure what exactly this is)
+} zend_mm_block_info;
+</code></pre>
+
+<p>I can&rsquo;t understand above well, but when all the options turned off, the size of above structure is 16 bytes.
+Now we get 48 bytes for each varibale.</p>
+
+<h3 id="buckets:0ffd47b925e5a07089257c9f74df4eff">Buckets</h3>
+
+<p>As we know, the Array in PHP is in fact Hash table. Every element is in a bucket. The bucket is:</p>
+
+<pre><code class="language-c">typedef struct bucket {
+    ulong h;                  // The hash (or for int keys the key)
+    uint nKeyLength;          // The length of the key (for string keys)
+    void *pData;              // The actual data
+    void *pDataPtr;           // ??? What's this ???
+    struct bucket *pListNext; // PHP arrays are ordered. This gives the next element in that order
+    struct bucket *pListLast; // and this gives the previous element
+    struct bucket *pNext;     // The next element in this (doubly) linked list
+    struct bucket *pLast;     // The previous element in this (doubly) linked list
+    const char *arKey;        // The key (for string keys)
+} Bucket;
+</code></pre>
+
+<p>The size of above structure is 68 bytes, padding to 72 bytes. Every bucket itself is dynamically allocated, adding addtional 16 bytes from allocation header, sums up to 88 bytes. Also, the pointer to each buckets cost 8 bytes, so the final results is 96 bytes.</p>
+
+<p>Here we come at the results that: each element in array costs: 96 bytes for bucket and 48 bytes for zval = 144 bytes total.
+10000 element array will costs: 13.73MB.</p>
+
+<h3 id="array-size-allocation:0ffd47b925e5a07089257c9f74df4eff">Array size allocation</h3>
+
+<p>Like vector in STL, size of contailer is not increased one by one. Instead, when size reaches pre-allocated limit, 2 times of the existing memory will allocated. As a result, the actual array size will be larger than the sum of its elements.</p>
+
+<h3 id="conclusion:0ffd47b925e5a07089257c9f74df4eff">Conclusion</h3>
+
+<p>PHP is the BEST language. HAHA..</p>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="http://0.0.0.0/post/2015-01-15-try-on-docker/" title="A try on docker">
+      Previous
+    </a>
+    
+
+    
+    <a class="next" href="http://0.0.0.0/post/2015-08-04-memo-on-django/" title="Some notes on django">
+      Next
+    </a>
+    
+
+  
+
+
+</div>
+
+  <div class="container comments">
+  <h2>Comments</h2>
+  
+
+</div>
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+
+</div>
+
+
+  
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="http://0.0.0.0/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+  </body>
+</html>
+

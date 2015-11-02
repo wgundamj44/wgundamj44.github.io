@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Python on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/python/</link>
+    <description>Recent content in Python on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="http://0.0.0.0/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Memo about HTTP service in python</title>
+      <link>http://0.0.0.0/post/2015-05-21-http-service-in-python/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-05-21-http-service-in-python/</guid>
+      <description>
+
+&lt;h2 id=&#34;general-idea-of-wsgi:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;General idea of WSGI&lt;/h2&gt;
+
+&lt;p&gt;As specified by pep-0333, the WSGI aims to make application written in python run on any web server as long as they follow the WSGI.&lt;/p&gt;
+
+&lt;p&gt;It includes two parts:&lt;/p&gt;
+
+&lt;h4 id=&#34;the-application-framework-side:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;The Application/Framework Side&lt;/h4&gt;
+
+&lt;p&gt;The application object should be callable(a function, a class with &lt;strong&gt;call&lt;/strong&gt; ..), and accepts two arguments. Like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def simple_app(environ, start_response):
+    &amp;quot;&amp;quot;&amp;quot;Simplest possible application object&amp;quot;&amp;quot;&amp;quot;
+    status = &#39;200 OK&#39;
+    response_headers = [(&#39;Content-type&#39;, &#39;text/plain&#39;)]
+    start_response(status, response_headers)
+    return [&#39;Hello world!\n&#39;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;the-server-gateway-side:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;The Server/Gateway Side&lt;/h4&gt;
+
+&lt;p&gt;The server will invoke the app for each request. For example, in werkzeug&amp;rsquo;s BaseWSGIServer, it invokes app with &lt;code&gt;app(environ, start_response)&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;werkzeug:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;werkzeug&lt;/h2&gt;
+
+&lt;h3 id=&#34;run-simple-make-a-simple-http-server:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;run_simple: make a simple HTTP server&lt;/h3&gt;
+
+&lt;p&gt;The interesting part is it supports restart on code change. The mechanism is that, when script executes,
+it starts a new process that executes a new process running the same script, but add a new envrioment variable
+&lt;code&gt;WERKZEUG_RUN_MAIN&lt;/code&gt;, so that a process can tell if it is running in forked process or original process, and executes
+different logic accordingly.&lt;/p&gt;
+
+&lt;p&gt;The main process is a while(1) loop, it forks a subprocess, waits until it terminates, checks its status code. If the code is 3,
+it knows code has changed and forks subprocess again, so that server is restarted. If code is not 3, then some error may happended,
+the main process itself will terminates.&lt;/p&gt;
+
+&lt;p&gt;In subprocess, it just starts a new thread which
+runs the server instance, and then runs the reloader. In reloader, it use watchdog to detect file add/remove/modification infinitely, if
+any change happens, it breaks from loop and subprocess terminates with status code 3. Notice that, the server thread is started with daemon
+options on, so when parent process terminates, the thread terminates too.&lt;/p&gt;
+
+&lt;h3 id=&#34;basewsgiserver-and-wsgirequesthandler:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;BaseWSGIServer and WSGIRequestHandler&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;BaseWSGIServer&lt;/code&gt; inherits Python&amp;rsquo;s &lt;code&gt;HTTPServer&lt;/code&gt;. It sets its &lt;code&gt;handler&lt;/code&gt; to &lt;code&gt;WSGIRequestHandler&lt;/code&gt; which will handle request. For each request, this &lt;code&gt;WSGIRequestHandler&lt;/code&gt; will be initialized, and handles request.&lt;/p&gt;
+
+&lt;p&gt;In &lt;code&gt;WSGIRequestHandler&lt;/code&gt;&amp;rsquo;s base class BaseRequestHandler, we can see in its contructor, it calls step(), handle(), finish() in turn. All its child class
+will override handle() to give response.&lt;/p&gt;
+
+&lt;p&gt;In WSGIRequestHandler&amp;rsquo;s parent class BaseHTTPRequestHandler, it overrides handle() and call handle_one_request() for each request came. And WSGIRequestHandler
+overrides handle_one_request() which finally calls run_wsgi(). And in run_wsgi, the app which is the server logic written by user is called with
+&lt;code&gt;app(envrion, start_response)&lt;/code&gt;. envrion is envrioment variables from request. start_response is a function returns write method. write method is where response data
+is actually get written. &lt;code&gt;start_response&lt;/code&gt; just set the response_headers and status, and return a function which will finally write response into socket.&lt;/p&gt;
+
+&lt;p&gt;So where does this envrion come from? In WSGIRequestHandler there&amp;rsquo;s a make_environ method that copies the header info from request into envrion.&lt;/p&gt;
+
+&lt;h3 id=&#34;routing:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;routing&lt;/h3&gt;
+
+&lt;p&gt;Routing is implemented with werkzeug.routing. As a general view, routing can be used as:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;m = Map([Rule(&#39;/&#39;, endpoint=&#39;hello&#39;)], default_subdomain=&#39;www&#39;)
+m.add(Subdomain(&#39;kb&#39;,[Rule(&#39;/&#39;, endpoint=&#39;hello2&#39;)])
+m.add(route.Subdomain(&#39;kb&#39;,[Rule(&#39;/test&#39;, endpoint=&#39;hello2.test&#39;)]))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the Map object has the internal data like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;Map([&amp;lt;Rule &#39;kb|/test&#39; -&amp;gt; hello2.test&amp;gt;,
+ &amp;lt;Rule &#39;www|/&#39; -&amp;gt; hello&amp;gt;,
+ &amp;lt;Rule &#39;kb|/&#39; -&amp;gt; hello2&amp;gt;])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Rule reprents a single mapping rule, it becomes usefule after being &lt;code&gt;bind&lt;/code&gt; to a map. In bind method,
+the regex pattern will be generated. For example, a rule &lt;code&gt;r = Rule(&#39;/add&#39;, endpoint=&#39;doAdd&#39;)&lt;/code&gt; after bind to m,
+&lt;code&gt;print(r._regex.pattern)&lt;/code&gt; has the result &lt;code&gt;^www\|\/add$&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Map should be bind to a host name with &lt;code&gt;ad = m.bind(&#39;example.com&#39;)&lt;/code&gt;, which returns a MapAdapter. MapAdapter is in charge
+for URL matching. Note that for the above &lt;code&gt;ad&lt;/code&gt; object, it only matches url with subdomain &lt;code&gt;www&lt;/code&gt;. To match url with subdomain
+&lt;code&gt;kb&lt;/code&gt;, it should be bind with &lt;code&gt;m.bind(&#39;example.com&#39;, subdomain=&#39;kb&#39;)&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The url dispatch is also done by MapAdapter, with &lt;code&gt;dispatch&lt;/code&gt; method.&lt;/p&gt;
+
+&lt;h2 id=&#34;flask:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;flask&lt;/h2&gt;
+
+&lt;p&gt;flask looks like a showbox of how to use werkzeug. For a code snippet like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from flask import Flask
+app = Flask(__name__)
+
+@app.route(&amp;quot;/say/&amp;lt;name&amp;gt;&amp;quot;)
+def say(name):
+    return &amp;quot;hello %s&amp;quot; % name
+
+
+if __name__ == &#39;__main__&#39;:
+    app.run(host=&amp;quot;localhost&amp;quot;, port=5000, debug=True)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;@app.route will register a routing entry, with werkzeug&amp;rsquo;s Routing module. For the above example, it will route &lt;code&gt;&#39;/say/xxx&#39;&lt;/code&gt; url to &lt;code&gt;say(name)&lt;/code&gt; function.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Unicode in python3</title>
+      <link>http://0.0.0.0/post/2015-04-21-unicode-in-python3/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-04-21-unicode-in-python3/</guid>
+      <description>&lt;p&gt;Long time since I touched python last time. Today I tried to write a line of code like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;message = &amp;quot;光臨&amp;quot;
+print(message)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And I run this program with python3, and get something like this: &lt;code&gt;UnicodeEncodeError: &#39;ascii&#39; codec can&#39;t encode characters&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s weird because in python3 every str is default to unicode.&lt;/p&gt;
+
+&lt;p&gt;After some google, I find that &lt;code&gt;print(sys.stdout.encoding)&lt;/code&gt; gives me &lt;code&gt;US-ASCII&lt;/code&gt;, which seems to explain why ascii appears in the error message.
+So I set $LANG with &lt;code&gt;export LANG=en_US.UTF-8&lt;/code&gt;, then &lt;code&gt;sys.stdout.encoding&lt;/code&gt; becomes &lt;code&gt;UTF-8&lt;/code&gt;, and &lt;code&gt;光臨&lt;/code&gt; get output. Here, the encoding of my
+terminal is also utf-8.&lt;/p&gt;
+
+&lt;p&gt;It seems that, when doing output to stdio, python will decode the string with sys.stdout.encoding which seems determined by &lt;code&gt;$LANG&lt;/code&gt; or &lt;code&gt;$LC_XXX&lt;/code&gt;. When $LANG is not set,
+it will be ASCII, of couse this will result in decode error.&lt;/p&gt;
+
+&lt;p&gt;Also note that, terminal encoding another different thing. It determines how bytes are rendered in terminal. If utf-8 is set, then terminal will assume the byte codes are
+utf-8 streams, and will encode them acording to utf-8. If byte codes is actully other codings, then funny characters will appear on terminal.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

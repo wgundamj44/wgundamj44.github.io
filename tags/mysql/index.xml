@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mysql on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/mysql/</link>
+    <description>Recent content in Mysql on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="http://0.0.0.0/tags/mysql/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>NULL or NOT NULL</title>
+      <link>http://0.0.0.0/post/2015-2-26-mysql-null/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2015-2-26-mysql-null/</guid>
+      <description>&lt;p&gt;In mysql table definiations, how NULL and NOT NULL effects behavior?&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;AFTER&lt;/strong&gt; MySQL 5.0.2. If there&amp;rsquo;s no NOT NULL in the column defination, MySQL add a DEFAULT NULL to defination. If there&amp;rsquo;s NOT NULL in the defination, in strict mode, an insertion that lacks the column will raise an error, while implict default value will be inserted in non-strict mode.&lt;/p&gt;
+
+&lt;p&gt;So for portability, always add DEFAULT for NOT NULL column.&lt;/p&gt;
+
+&lt;p&gt;Detail can be found &lt;a href=&#34;http://dev.mysql.com/doc/refman/5.0/en/data-type-defaults.html&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

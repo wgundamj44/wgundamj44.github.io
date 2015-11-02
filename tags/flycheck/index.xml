@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Flycheck on Notes of wgundamj44</title>
+    <link>http://0.0.0.0/tags/flycheck/</link>
+    <description>Recent content in Flycheck on Notes of wgundamj44</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="http://0.0.0.0/tags/flycheck/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>About flycheck</title>
+      <link>http://0.0.0.0/post/2014-11-17-flycheck/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://0.0.0.0/post/2014-11-17-flycheck/</guid>
+      <description>
+
+&lt;p&gt;Recently I replaced my emacs on-the-fly syntax checker from flymake to flycheck. Flycheck is more well designed so that additional checker can be used without
+introducing into the other plugins.&lt;/p&gt;
+
+&lt;p&gt;For PHP development, I used to use php + phpcs, php for syntax check, phpcs for unused variable check. With flymake, it can only use php by default, and need to
+install flymake-php etc. for phpcs. While in flycheck, there&amp;rsquo;s a mechanism called &amp;lsquo;next checker&amp;rsquo;, in which additional checker can be defined.&lt;/p&gt;
+
+&lt;p&gt;After flycheck is installed, php checker works fine while phpcs does not. So I digged a little further into the source code of flycheck, and found out the reason.
+It turns out that, flycheck will save a copy of the source code to be checked to a tmp folder. In my Mac computer, it is /var/xxx/yyy. This folder is in fact a symbol link
+to /private/var/xxx/yyy/. The output of phpcs use directory name /private/var/xxx, while flycheck assumed the directory name /var/xxx. The flycheck will use &lt;code&gt;string=&lt;/code&gt; tocheck if the origin of
+the error message is the same as the checked file, the file name is obviously different although they refer to the same place.. As a result, the error message will be discarded and no check result will be output.
+My solution is customized the &lt;code&gt;temporary-file-directory&lt;/code&gt; variable to refer to the real directory name instead of the symbol link, and everything works fine. Also, I customized the &lt;code&gt;flycheck-phpcs-standard&lt;/code&gt; to
+specify the standard of phpcs, and &lt;code&gt;flycheck-php-phpcs-executable&lt;/code&gt; to specify the phpcs command path.&lt;/p&gt;
+
+&lt;h2 id=&#34;how-flycheck-works:4fb8eda8f02c022ebaaa118fd7ec67cb&#34;&gt;How flycheck works?&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Configuration&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;php checker&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;flycheck-define-checker php
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This says use php to check for error, and after error check is performed check for warnings use phpmd and phpcs.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;phpcs checker&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;flycheck-define-checker php-phpcs
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This says that use &lt;code&gt;flycheck-phpcs-standard&lt;/code&gt; to check for warnings.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;workflow&lt;/li&gt;
+&lt;li&gt;flycheck-buffer: checker entry point&lt;/li&gt;
+&lt;li&gt;flycheck-start-checker: start a checker
+
+&lt;ul&gt;
+&lt;li&gt;flycheck-checker-executable: extract checker command from checker config&lt;/li&gt;
+&lt;li&gt;flycheck-checker-substitued-arguments: determine the arguments from checker config, also creates temp file for check&lt;/li&gt;
+&lt;li&gt;flycheck-receive-checker-ouput: collects output of checker&lt;/li&gt;
+&lt;li&gt;flycheck-handle-signal: deal with output when process finished with some signal&lt;/li&gt;
+&lt;li&gt;flycheck-finish-syntax-check: finish the check
+
+&lt;ul&gt;
+&lt;li&gt;flycheck-relevant-errors: check if error message belong the current buffer&lt;/li&gt;
+&lt;li&gt;flycheck-process-error-functions: actually change the buffer display with error messages&lt;/li&gt;
+&lt;li&gt;next checker: if there&amp;rsquo;s next checker for the buffer, repeat&amp;hellip;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

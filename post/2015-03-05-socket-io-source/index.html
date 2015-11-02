@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Tried to read socket.io source code  &middot; Notes of wgundamj44</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="javascript, socket.io, ">
+
+
+<meta property="og:title" content="Tried to read socket.io source code  &middot; Notes of wgundamj44 ">
+<meta property="og:site_name" content="Notes of wgundamj44"/>
+<meta property="og:url" content="http://0.0.0.0/post/2015-03-05-socket-io-source/" />
+<meta property="og:locale" content="en-us">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="0001-01-01T00:00:00Z" />
+<meta property="og:article:modified_time" content="0001-01-01T00:00:00Z" />
+
+  
+    
+<meta property="og:article:tag" content="javascript">
+    
+<meta property="og:article:tag" content="socket.io">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Tried to read socket.io source code" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="http://0.0.0.0/post/2015-03-05-socket-io-source/" />
+<meta name="twitter:domain" content="http://0.0.0.0/">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Tried to read socket.io source code",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "0001-01-01",
+    "description": "",
+    "wordCount":  637 
+  }
+</script>
+
+
+
+<link rel="canonical" href="http://0.0.0.0/post/2015-03-05-socket-io-source/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://0.0.0.0/touch-icon-144-precomposed.png">
+<link href="http://0.0.0.0/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.15-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://0.0.0.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/style.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/highlight/solarized_light.css">
+
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="http://0.0.0.0/">
+  Notes of wgundamj44
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+
+  
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>Tried to read socket.io source code
+</h1>
+
+  <div class="metas">
+<time datetime="0001-01-01">1 Jan, 0001</time>
+
+
+  
+  &middot; Read in about 3 min
+  &middot; (637 Words)
+  <br>
+  
+<a class="label" href="http://0.0.0.0/tags/javascript">javascript</a>
+
+<a class="label" href="http://0.0.0.0/tags/socket.io">socket.io</a>
+
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>Some important parts of socket.io.</p>
+
+<h3 id="manager:256a5205d6d47822ca380b71d52903dd">Manager</h3>
+
+<p>This is the main interface of socket.io. <code>require('socket.io').listen()</code> returns a Manager (the io object).</p>
+
+<p>Manager holds a server, which is the instance of nodejs server; a namespaces, which is the collections of all namespaces; a settings, which holds the customizable setting info. a sockets, which is the default namespace.</p>
+
+<h4 id="new-exports-manager-server-options-workflow:256a5205d6d47822ca380b71d52903dd"><code>new exports.Manager(server, options)</code> workflow:</h4>
+
+<ul>
+<li>init all the members including server, namespaces, sockets, settings.</li>
+<li><code>server.on('request'...</code> use <code>handleRequest</code> to handle server request.</li>
+<li>sockets is a bad name, because is actually refers to &ldquo;&rdquo; namespace, as <code>this.sockets = this.of('')</code> shows.</li>
+<li>init store
+
+<ul>
+<li>here the store subscribes lots of messages like handshaken, connect, open, join, leave, etc. and call the corresponding method</li>
+<li>init <code>handshaken</code>, <code>connected</code>, <code>open</code>, <code>closed</code>, <code>rooms</code>, <code>roomClients</code>. These are important controll objects.</li>
+</ul></li>
+<li>init transports, transports are underlying data transporation modules.</li>
+</ul>
+
+<h3 id="handshake:256a5205d6d47822ca380b71d52903dd">handshake</h3>
+
+<p>The first step of websocket is shandshake. client inits a http request inicating itself as a websocket request, the server indentifies it and start websocket communication.
+Here is how it works in socket.io:</p>
+
+<ul>
+<li>handleRequest: when request comes, this method is called. In this method, <code>checkRequest</code> is used to extract messsages from rquest data. When request data <strong>doesn&rsquo;t</strong> have an id, then it is considered as a handshake, and handleHandshake will be called.</li>
+<li>handleHandshake: This method first extracts handshake data from request data with <code>handshakeData</code> method.
+
+<ul>
+<li>authorize method can be used to authoriztion. authoriztion method can be passed from outside with set method.</li>
+<li>If authorization succeeded, then success is returned. Here the unique id for this connection is created, and be used everywhere.</li>
+<li>onHandshake: It is called after response, sets handshaken object with id as key, and handshake data as value.</li>
+<li>Also, <code>handshake</code> message is published.</li>
+<li>Now connection is established.</li>
+</ul></li>
+</ul>
+
+<h3 id="send-and-receive-message:256a5205d6d47822ca380b71d52903dd">send and receive message</h3>
+
+<p>To receive messages from client, the workflow is the same as handshake, except that <code>handleHTTPRequest</code> is used instead of <code>handleHandshake</code>.</p>
+
+<h4 id="handlehttprequest:256a5205d6d47822ca380b71d52903dd">handleHTTPRequest</h4>
+
+<p><code>handleClient</code> will do the actual work.</p>
+
+<h4 id="handleclient:256a5205d6d47822ca380b71d52903dd">handleClient</h4>
+
+<h5 id="why-onhandshake-for-second-time-here:256a5205d6d47822ca380b71d52903dd">why onHandshake for second time here??</h5>
+
+<p>Because when client get disconnected, it will try to reconnect for sometime, and will enter handleClient.</p>
+
+<p>Important parts are:
+Here is where connect event of client is fired:</p>
+
+<pre><code class="language-javascript">if (i === '') {
+  this.namespaces[i].handlePacket(data.id, { type: 'connect' });
+}
+</code></pre>
+
+<p>Here is how message of specific connection can be listend:</p>
+
+<pre><code class="language-js">this.store.subscribe('message:' + data.id, function (packet) {
+   self.onClientMessage(data.id, packet);
+});
+</code></pre>
+
+<p>I think we can use this to communicate with connection from outside of nodejs. For example, when redis store is used, we can publish <code>message:111</code> from other program, say a php batch, to notify something to the connection with id 111. <strong>Update: too simple, sometimes naive</strong>: After a close look at the code, I found this is difficut as the data of message is the packet itself.</p>
+
+<p>The real code to send packet back to user is done by namespaces.</p>
+
+<h3 id="socketnamespace:256a5205d6d47822ca380b71d52903dd">SocketNamespace</h3>
+
+<p>The packet is handled by <code>handlePacket</code> method.
+The important member is <code>socket</code>, which is the socket we got in <code>io.sockets.on('connection', funtion(socket) {}</code>. socket.io has one socket for each connection identified by id. In handlePacket method, itdoes different things based on <code>pacekt.type</code>. Here we can find why <code>socket.on(xxx, function() {})</code> can work, in fact it calls <code>socket.$emit.apply(socket, params)</code>.</p>
+
+<h4 id="connect:256a5205d6d47822ca380b71d52903dd">connect</h4>
+
+<p>In <code>packet</code> method, it does different things based on packet.type. When type is connect, then connection event is emitted, and our <code>io.sockets.on('connection')</code> will be called. Also here, we will call <code>socket.packet({ type: 'connect'})</code> to send connect packet back to client, so that client&rsquo;s &lsquo;on connect&rsquo; will be called.</p>
+
+<p><strong>TODO</strong> ack</p>
+
+<p>The <code>packet</code> method of SocketNamespace calls Manager&rsquo;s onDispath which in turn calls transport&rsquo;s onDispatch to send the packet.</p>
+
+<h3 id="transport:256a5205d6d47822ca380b71d52903dd">Transport</h3>
+
+<p>Transport is where the transition of data is carried out. We only focus on websocket. There&rsquo;re several subclass represents different sub protocal of websocket, the <code>onDispatch</code> called write method of its sub class. I only searched in default.js. In default.js, there&rsquo;s a <code>write</code> method finally writes data buffer into socket.</p>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="http://0.0.0.0/post/2015-04-21-unicode-in-python3/" title="Unicode in python3">
+      Previous
+    </a>
+    
+
+    
+    <a class="next" href="http://0.0.0.0/post/2014-12-02-meaning-of-top/" title="The meaning of top command">
+      Next
+    </a>
+    
+
+  
+
+
+</div>
+
+  <div class="container comments">
+  <h2>Comments</h2>
+  
+
+</div>
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+
+</div>
+
+
+  
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="http://0.0.0.0/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+  </body>
+</html>
+

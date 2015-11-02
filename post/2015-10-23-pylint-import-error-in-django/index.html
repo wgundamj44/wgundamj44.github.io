@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Solve pylint import error in Django  &middot; Notes of wgundamj44</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="Django, ">
+
+
+<meta property="og:title" content="Solve pylint import error in Django  &middot; Notes of wgundamj44 ">
+<meta property="og:site_name" content="Notes of wgundamj44"/>
+<meta property="og:url" content="http://0.0.0.0/post/2015-10-23-pylint-import-error-in-django/" />
+<meta property="og:locale" content="en-us">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2015-10-23T00:00:00Z" />
+<meta property="og:article:modified_time" content="2015-10-23T00:00:00Z" />
+
+  
+    
+<meta property="og:article:tag" content="Django">
+    
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Solve pylint import error in Django" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="http://0.0.0.0/post/2015-10-23-pylint-import-error-in-django/" />
+<meta name="twitter:domain" content="http://0.0.0.0/">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Solve pylint import error in Django",
+    "author": {
+      "@type": "Person",
+      "name": "http://profiles.google.com/+?rel=author"
+    },
+    "datePublished": "2015-10-23",
+    "description": "",
+    "wordCount":  191 
+  }
+</script>
+
+
+
+<link rel="canonical" href="http://0.0.0.0/post/2015-10-23-pylint-import-error-in-django/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://0.0.0.0/touch-icon-144-precomposed.png">
+<link href="http://0.0.0.0/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.15-DEV" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://0.0.0.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/style.css">
+<link rel="stylesheet" href="http://0.0.0.0/css/highlight/solarized_light.css">
+
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="http://0.0.0.0/">
+  Notes of wgundamj44
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+
+  
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>Solve pylint import error in Django
+</h1>
+
+  <div class="metas">
+<time datetime="2015-10-23">23 Oct, 2015</time>
+
+
+  
+  &middot; Read in about 1 min
+  &middot; (191 Words)
+  <br>
+  
+<a class="label" href="http://0.0.0.0/tags/django">Django</a>
+
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  <p>I&rsquo;m using emacs flycheck with pylint to lint my Django project. Everything goes well except I constantly reports
+import error for my user-defined modules. The system modules are ok, the Django modules are ok too. We know that python uses
+sys.path to search for modules, so the problem must be python interpreter sees different sys.path value to pylint.</p>
+
+<p>So I created a pylintrc file, and put it in the base folder of my project(the folder contains manage.py), in content is:</p>
+
+<pre><code class="language-python">[Master]
+init-hook='import sys; sys.path.append(&quot;/base/folder/of/my/project&quot;)'
+</code></pre>
+
+<p>Then I found import error disappears. So the reason is clear, pylint lacks the path to the base folder of my project.</p>
+
+<p>As mentioned in the pydocs, when script invokes the interpreter, the path to this script will be added to the head of sys.path.
+manage.py is the entry script of Django project, so the folder of manage.py will be added to sys.path, as a result, all the modules can be
+import relative to this path. That is why our Django project can import self-made module properly. To mimic this behavior, a properer way of
+writing pylintrc above is:</p>
+
+<pre><code class="language-python">[Master]
+init-hook='import sys; sys.path = [&quot;/base/folder/of/my/project&quot;] + sys.path'
+</code></pre>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="http://0.0.0.0/post/2015-09-30-project-node-4/" title="Some project notes(4)">
+      Previous
+    </a>
+    
+
+    
+
+  
+
+
+</div>
+
+  <div class="container comments">
+  <h2>Comments</h2>
+  
+
+</div>
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+
+</div>
+
+
+  
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="http://0.0.0.0/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+  </body>
+</html>
+
