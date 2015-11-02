@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Python on Notes of wgundamj44</title>
-    <link>http://0.0.0.0/tags/python/</link>
+    <link>http://118.67.96.51:8000/tags/python/</link>
     <description>Recent content in Python on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="http://0.0.0.0/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://118.67.96.51:8000/tags/python/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Memo about HTTP service in python</title>
-      <link>http://0.0.0.0/post/2015-05-21-http-service-in-python/</link>
+      <link>http://118.67.96.51:8000/post/2015-05-21-http-service-in-python/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://0.0.0.0/post/2015-05-21-http-service-in-python/</guid>
+      <guid>http://118.67.96.51:8000/post/2015-05-21-http-service-in-python/</guid>
       <description>
 
 &lt;h2 id=&#34;general-idea-of-wsgi:c91300f1028a116a3aac58b5c1f5d299&#34;&gt;General idea of WSGI&lt;/h2&gt;
@@ -118,10 +118,10 @@ if __name__ == &#39;__main__&#39;:
     
     <item>
       <title>Unicode in python3</title>
-      <link>http://0.0.0.0/post/2015-04-21-unicode-in-python3/</link>
+      <link>http://118.67.96.51:8000/post/2015-04-21-unicode-in-python3/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://0.0.0.0/post/2015-04-21-unicode-in-python3/</guid>
+      <guid>http://118.67.96.51:8000/post/2015-04-21-unicode-in-python3/</guid>
       <description>&lt;p&gt;Long time since I touched python last time. Today I tried to write a line of code like this:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;message = &amp;quot;光臨&amp;quot;

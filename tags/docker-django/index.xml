@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Docker Django on Notes of wgundamj44</title>
-    <link>http://0.0.0.0/tags/docker-django/</link>
+    <link>http://118.67.96.51:8000/tags/docker-django/</link>
     <description>Recent content in Docker Django on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 13 Aug 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://0.0.0.0/tags/docker-django/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://118.67.96.51:8000/tags/docker-django/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Some project notes(2)</title>
-      <link>http://0.0.0.0/post/2015-08-13-project-note2/</link>
+      <link>http://118.67.96.51:8000/post/2015-08-13-project-note2/</link>
       <pubDate>Thu, 13 Aug 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://0.0.0.0/post/2015-08-13-project-note2/</guid>
+      <guid>http://118.67.96.51:8000/post/2015-08-13-project-note2/</guid>
       <description>
 
 &lt;h2 id=&#34;develop-enviroment-with-docker:e7d43dfc46b4cac080bf58b0a0e5c283&#34;&gt;Develop enviroment with Docker&lt;/h2&gt;

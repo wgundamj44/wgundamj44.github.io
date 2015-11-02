@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Performance on Notes of wgundamj44</title>
-    <link>http://0.0.0.0/tags/performance/</link>
+    <link>http://118.67.96.51:8000/tags/performance/</link>
     <description>Recent content in Performance on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="http://0.0.0.0/tags/performance/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://118.67.96.51:8000/tags/performance/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>An analysis of GvG event</title>
-      <link>http://0.0.0.0/post/2014-11-12-gvg-status/</link>
+      <link>http://118.67.96.51:8000/post/2014-11-12-gvg-status/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://0.0.0.0/post/2014-11-12-gvg-status/</guid>
+      <guid>http://118.67.96.51:8000/post/2014-11-12-gvg-status/</guid>
       <description>
 
 &lt;h2 id=&#34;summary-of-gvg-event:afe463e62ffac07f8589ee0e884ac16f&#34;&gt;Summary of GvG event&lt;/h2&gt;
@@ -48,19 +48,19 @@ blowed up our application.&lt;/p&gt;
 &lt;li&gt;number of access per sec:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://0.0.0.0/2014-11-12-access1.png&#34; alt=&#34;number of access&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://118.67.96.51:8000/2014-11-12-access1.png&#34; alt=&#34;number of access&#34; /&gt;&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;response time:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://0.0.0.0/2014-11-12-time1.png&#34; alt=&#34;response time&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://118.67.96.51:8000/2014-11-12-time1.png&#34; alt=&#34;response time&#34; /&gt;&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;cpu load average:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://0.0.0.0/2014-11-12-load1.png&#34; alt=&#34;load average&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://118.67.96.51:8000/2014-11-12-load1.png&#34; alt=&#34;load average&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Response slows as requests increase. Also we can see that, because of the slow query the cpu load reaches as high as 5 at peak time.&lt;/p&gt;
 
@@ -70,19 +70,19 @@ blowed up our application.&lt;/p&gt;
 &lt;li&gt;number of access per sec:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://0.0.0.0/2014-11-12-access2.png&#34; alt=&#34;number of access&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://118.67.96.51:8000/2014-11-12-access2.png&#34; alt=&#34;number of access&#34; /&gt;&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;response time:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://0.0.0.0/2014-11-12-time2.png&#34; alt=&#34;response time&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://118.67.96.51:8000/2014-11-12-time2.png&#34; alt=&#34;response time&#34; /&gt;&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;cpu load average:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://0.0.0.0/2014-11-12-load2.png&#34; alt=&#34;load average&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://118.67.96.51:8000/2014-11-12-load2.png&#34; alt=&#34;load average&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;After the bug is fixed, the load average returns to a reasonable level.&lt;/p&gt;
 

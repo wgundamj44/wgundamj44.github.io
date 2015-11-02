@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Mysql on Notes of wgundamj44</title>
-    <link>http://0.0.0.0/tags/mysql/</link>
+    <link>http://118.67.96.51:8000/tags/mysql/</link>
     <description>Recent content in Mysql on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="http://0.0.0.0/tags/mysql/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://118.67.96.51:8000/tags/mysql/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>NULL or NOT NULL</title>
-      <link>http://0.0.0.0/post/2015-2-26-mysql-null/</link>
+      <link>http://118.67.96.51:8000/post/2015-2-26-mysql-null/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://0.0.0.0/post/2015-2-26-mysql-null/</guid>
+      <guid>http://118.67.96.51:8000/post/2015-2-26-mysql-null/</guid>
       <description>&lt;p&gt;In mysql table definiations, how NULL and NOT NULL effects behavior?&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;AFTER&lt;/strong&gt; MySQL 5.0.2. If there&amp;rsquo;s no NOT NULL in the column defination, MySQL add a DEFAULT NULL to defination. If there&amp;rsquo;s NOT NULL in the defination, in strict mode, an insertion that lacks the column will raise an error, while implict default value will be inserted in non-strict mode.&lt;/p&gt;

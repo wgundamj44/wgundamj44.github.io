@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Shell on Notes of wgundamj44</title>
-    <link>http://0.0.0.0/tags/shell/</link>
+    <link>http://118.67.96.51:8000/tags/shell/</link>
     <description>Recent content in Shell on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <atom:link href="http://0.0.0.0/tags/shell/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://118.67.96.51:8000/tags/shell/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>About Grep Escape</title>
-      <link>http://0.0.0.0/post/2014-10-08-grep-escape/</link>
+      <link>http://118.67.96.51:8000/post/2014-10-08-grep-escape/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://0.0.0.0/post/2014-10-08-grep-escape/</guid>
+      <guid>http://118.67.96.51:8000/post/2014-10-08-grep-escape/</guid>
       <description>&lt;p&gt;What&amp;rsquo;s the difference with &lt;code&gt;grep &#39;$id\$&#39;&lt;/code&gt; and &lt;code&gt;grep \$id\$&lt;/code&gt;?&lt;/p&gt;
 
 &lt;p&gt;The first will match string $id$, and the second will match the string ends with $id.&lt;/p&gt;
