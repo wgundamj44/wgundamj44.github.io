@@ -39,7 +39,7 @@ init-hook=&#39;import sys; sys.path = [&amp;quot;/base/folder/of/my/project&amp;
     </item>
     
     <item>
-      <title>Some project notes(4)</title>
+      <title>Some project notes: Bootstrap of Django</title>
       <link>http://wgundamj44.github.io/post/2015-09-30-project-node-4/</link>
       <pubDate>Wed, 30 Sep 2015 00:00:00 +0000</pubDate>
       
@@ -83,7 +83,7 @@ entry is moudle name, then &lt;code&gt;create&lt;/code&gt; will try to import it
     </item>
     
     <item>
-      <title>Some project notes(3)</title>
+      <title>Some project notes: ORM in Django</title>
       <link>http://wgundamj44.github.io/post/2015-09-26-project-note-3/</link>
       <pubDate>Sat, 26 Sep 2015 00:00:00 +0000</pubDate>
       
@@ -190,7 +190,7 @@ About metaclass, there&amp;rsquo;s an excellent article in &lt;a href=&#34;http:
     </item>
     
     <item>
-      <title>Some project notes(2)</title>
+      <title>Some project notes: Develop enviroment</title>
       <link>http://wgundamj44.github.io/post/2015-08-13-project-note2/</link>
       <pubDate>Thu, 13 Aug 2015 00:00:00 +0000</pubDate>
       
@@ -264,7 +264,7 @@ Note that the &amp;ndash;service-ports option  makes the port mapping of web ava
     </item>
     
     <item>
-      <title>Some project notes(1)</title>
+      <title>Some project notes: Use React and webpack</title>
       <link>http://wgundamj44.github.io/post/2015-08-12-project-note/</link>
       <pubDate>Wed, 12 Aug 2015 00:00:00 +0000</pubDate>
       

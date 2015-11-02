@@ -39,7 +39,7 @@ init-hook=&#39;import sys; sys.path = [&amp;quot;/base/folder/of/my/project&amp;
     </item>
     
     <item>
-      <title>Some project notes(4)</title>
+      <title>Some project notes: Bootstrap of Django</title>
       <link>http://wgundamj44.github.io/post/2015-09-30-project-node-4/</link>
       <pubDate>Wed, 30 Sep 2015 00:00:00 +0000</pubDate>
       
@@ -83,7 +83,7 @@ entry is moudle name, then &lt;code&gt;create&lt;/code&gt; will try to import it
     </item>
     
     <item>
-      <title>Some project notes(3)</title>
+      <title>Some project notes: ORM in Django</title>
       <link>http://wgundamj44.github.io/post/2015-09-26-project-note-3/</link>
       <pubDate>Sat, 26 Sep 2015 00:00:00 +0000</pubDate>
       
