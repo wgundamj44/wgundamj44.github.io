@@ -110,11 +110,40 @@
     <h1>Notes of wgundamj44
 </h1>
 
-    <span>last update: <time datetime="2015-10-23T00:00:00Z">23 October at 12:00am</time>
+    <span>last update: <time datetime="2015-11-30T00:00:00Z">30 November at 12:00am</time>
 </span>
 
   </header>
   
+  
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="http://wgundamj44.github.io/post/2015-11-30-use-nginx-to-manage-django-sites-in-docker/">Use Nginx to manage django sites in docker
+</a>
+</h2>
+
+  <time datetime="2015-11-30">30 Nov, 2015</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    In previous post, I setuped my django develop enviroment with docker. It works fine but with one problem, it use Django&rsquo;s runserver command to manage all the static files, the page load time is very long, sometimes it even stucks in page loading forever. So I decide to to nginx to replace command of Django. Set up a uwsgi To use python with nginx, uwsgi is our first choice. I created mysite.yaml like the following: uwsgi: socket: 0.0.0.0:8000 master: true no-orphans: true processes: 1 uid: root gid: root chdir: /code # where my django app resides in the docker container env: DJANGO_SETTINGS_MODULE=xxxx # my django setting file module: xxx # my wsgi module buffer-size: 40960 enable-threads: true Several notes here: - root as uid, gid is a bad choice.
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="http://wgundamj44.github.io/post/2015-11-30-use-nginx-to-manage-django-sites-in-docker/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
   
     <article class="container content summary">
   <div class="container hat">
@@ -386,37 +415,6 @@ Here is the summary.</p>
 </article>
 
   
-    <article class="container content summary">
-  <div class="container hat">
-  <h2><a href="http://wgundamj44.github.io/post/2014-11-17-flycheck/">About flycheck
-</a>
-</h2>
-
-  <time datetime="0001-01-01">1 Jan, 0001</time>
-
-</div>
-
-  <p class="container content">
-  
-  
-    <p>Recently I replaced my emacs on-the-fly syntax checker from flymake to flycheck. Flycheck is more well designed so that additional checker can be used without
-introducing into the other plugins.</p>
-
-  
-
-
-</p>
-
-
-  <div class="container readlink">
-  <a href="http://wgundamj44.github.io/post/2014-11-17-flycheck/">Read more &rarr;</a>
-
-</div>
-
-
-</article>
-
-  
   
 <div class="container pagination">
   
@@ -439,12 +437,16 @@ introducing into the other plugins.</p>
   2
 </a>
 
+<a href="http://wgundamj44.github.io//page/3/">
+  3
+</a>
+
 
 <a aria-label="Next" href="http://wgundamj44.github.io//page/2/">
   <span aria-hidden="true">»</span>
 </a>
 
-<a aria-label="Last" href="http://wgundamj44.github.io//page/2/">
+<a aria-label="Last" href="http://wgundamj44.github.io//page/3/">
   <span aria-hidden="true">»»</span>
 </a>
 

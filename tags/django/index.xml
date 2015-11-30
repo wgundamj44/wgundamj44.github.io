@@ -6,8 +6,221 @@
     <description>Recent content in Django on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 Oct 2015 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 30 Nov 2015 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://wgundamj44.github.io/tags/django/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Use Nginx to manage django sites in docker</title>
+      <link>http://wgundamj44.github.io/post/2015-11-30-use-nginx-to-manage-django-sites-in-docker/</link>
+      <pubDate>Mon, 30 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://wgundamj44.github.io/post/2015-11-30-use-nginx-to-manage-django-sites-in-docker/</guid>
+      <description>
+
+&lt;p&gt;In &lt;a href=&#34;http://wgundamj44.github.io/post/2015-08-13-project-note2/&#34;&gt;previous post&lt;/a&gt;, I setuped my django develop enviroment with docker. It works fine but with one problem, it use Django&amp;rsquo;s &lt;code&gt;runserver&lt;/code&gt; command to manage all the static files, the page load time is very long, sometimes it even stucks in page loading forever. So I decide to to nginx to replace command of Django.&lt;/p&gt;
+
+&lt;h3 id=&#34;set-up-a-uwsgi:0ed7f348116ffd69af85d06cac6021e5&#34;&gt;Set up a uwsgi&lt;/h3&gt;
+
+&lt;p&gt;To use python with nginx, uwsgi is our first choice.&lt;/p&gt;
+
+&lt;p&gt;I created mysite.yaml like the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;uwsgi:
+	socket: 0.0.0.0:8000
+	master: true
+	no-orphans: true
+	processes: 1
+	uid: root
+	gid: root
+	chdir: /code # where my django app resides in the docker container
+	env: DJANGO_SETTINGS_MODULE=xxxx # my django setting file
+	module: xxx # my wsgi module
+	buffer-size: 40960
+	enable-threads: true
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Several notes here:
+- root as uid, gid is a bad choice. I set it like this just for convenience.
+- socket is bind to 0.0.0.0:8000, so that nginx can get access to this socket from another docker container
+- when started, uwsgi will start a the wsgi module set in the module entry, and serve it at port 8000.
+Save this mysite.yaml to ./uwsgi folder, our web container becomes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;web:
+	build: ./python
+	volumes:
+	  - ./mycode:/code
+	  - ./uwsgi:/uwsgi
+	command: uswgi --yaml /uwsgi/mysite.yaml
+	ports:
+	  - &amp;quot;8000:8000&amp;quot;
+	links:
+	  - db
+	  - rabbitmq
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;set-up-nginx:0ed7f348116ffd69af85d06cac6021e5&#34;&gt;Set up nginx&lt;/h3&gt;
+
+&lt;p&gt;With uwsgi set, the nginx site configure file mysite.conf likes like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-nginx&#34;&gt;server {
+	listen          8080;
+	server_name     my.test-site.local;
+	client_max_body_size 50M;
+	ssl off;
+	location ~* /favicon.ico {
+		empty_gif;
+	}
+
+	location / {
+		include uwsgi_params;
+		uwsgi_pass  uwsgicluster;
+		uwsgi_param UWSGI_SCHEME $scheme;
+	}
+
+	location ^~ /static/ {
+		alias xxxx # path to my static files;
+	}
+}
+upstream uwsgicluster {
+	server web:8000;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;About nginx&amp;rsquo;s &lt;code&gt;nginx.conf&lt;/code&gt;, I used a default one with one modification: Add &lt;code&gt;daemon off&lt;/code&gt; at head, otherwise when nginx get started, its main process will quit making container exit too, which is not what we want.
+The final nginx.conf is like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-nginx&#34;&gt;daemon off;
+user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+
+pid        /var/run/nginx.pid;
+
+events {
+	worker_connections  1024;
+}
+	
+http {
+	include       /etc/nginx/mime.types;
+	default_type  application/octet-stream;
+
+	access_log  /var/log/nginx/access.log  main;
+	sendfile        on;
+	
+	keepalive_timeout  65;
+	
+	gzip  on;
+
+	server {
+		listen 80;
+		return 301 https://$host$request_uri;
+	}
+
+	include /etc/nginx/conf.d/*.conf;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And we add a new entry into docker-compose.yaml for nginx container:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;nginx:
+image: nginx
+  volumes:
+    - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+    - ./nginx/conf/conf.d/mysite.conf:/etc/nginx/conf.d/mysite.conf
+    - ./mycode:/code
+  command: /etc/init.d/nginx start
+  ports:
+    - &amp;quot;8080:8080&amp;quot;
+  links:
+    - web
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The important part here is the &lt;code&gt;uwsgi_pass&lt;/code&gt; part, which forward all the request other than static files to web:8000. &lt;code&gt;web:8000&lt;/code&gt; is the service on web container.&lt;/p&gt;
+
+&lt;p&gt;Also, with &lt;code&gt;location&lt;/code&gt; part, the static files now will be handled by nginx.&lt;/p&gt;
+
+&lt;p&gt;Now the access the my web app is much faster.&lt;/p&gt;
+
+&lt;h3 id=&#34;add-reload-capacity-to-uwsgi:0ed7f348116ffd69af85d06cac6021e5&#34;&gt;Add reload capacity to uwsgi&lt;/h3&gt;
+
+&lt;p&gt;The downside of the above configuration is we lose the ability to automatically restart server when code is changed. To solve this, add these lines to the uswgi entry wsgi file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import uwsgi
+from uwsgidecorators import timer
+from django.utils import autoreload
+
+@timer(3)
+def change_code_gracefull_reload(sig):
+	if autoreload.code_changed():
+		uwsgi.reload()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This snippets make use of &lt;code&gt;autoreload&lt;/code&gt; of Django, and restart uwsgi if code is changed.&lt;/p&gt;
+
+&lt;h3 id=&#34;manage-multiple-sites:0ed7f348116ffd69af85d06cac6021e5&#34;&gt;Manage multiple sites&lt;/h3&gt;
+
+&lt;p&gt;To serve multiple sites in the same ip, we should modify both nginx and uwsgi.&lt;/p&gt;
+
+&lt;h4 id=&#34;server-block-of-nginx:0ed7f348116ffd69af85d06cac6021e5&#34;&gt;server block of nginx&lt;/h4&gt;
+
+&lt;p&gt;For nginx part, we make use of its &lt;code&gt;server block&lt;/code&gt; mechanism: load different configs based on host name. I add a new conf file for my new site, say &amp;ldquo;my2.test-site.local&amp;rdquo;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-nginx&#34;&gt;server {
+	listen          8080;
+	server_name     my2.test-site.local;
+	client_max_body_size 50M;
+	ssl off;
+	location ~* /favicon.ico {
+		empty_gif;
+	}
+
+	location / {
+		include uwsgi_params;
+		uwsgi_pass  uwsgicluster;
+		uwsgi_param UWSGI_SCHEME $scheme;
+	}
+
+	location ^~ /static/ {
+		alias xxxx # path to my static files for my2.test-site.local;
+	}
+}
+upstream uwsgicluster {
+	server web:3000;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note here, we listen to the same port as &lt;code&gt;my.test-site.local&lt;/code&gt;, but forward the request to different upstream uwsgi, and serve static files in different folder.&lt;/p&gt;
+
+&lt;p&gt;Next we should set our new upstream uwsgi.&lt;/p&gt;
+
+&lt;h4 id=&#34;emperor-of-uwsgi:0ed7f348116ffd69af85d06cac6021e5&#34;&gt;emperor of uwsgi&lt;/h4&gt;
+
+&lt;p&gt;Of course we can set up two uwsgi manually to serve two sites, uwsgi offers a better way: emperor mode. This emperor mode basically monitors some config files, and when we add or remove uwsgi config files, it add or remove uwsgi process accordingly.&lt;/p&gt;
+
+&lt;p&gt;Its usage is simple, just the command &lt;code&gt;uwsgi --emperor /uwsgi/conf/&lt;/code&gt;, where &lt;code&gt;/uwsgi/conf/&lt;/code&gt; is the folder where all the sites&amp;rsquo; uwsgi files reside. We just put the conf for new site into this folder, and everything works automatically.&lt;/p&gt;
+
+&lt;p&gt;The conf for &lt;code&gt;my2.test-site.local&lt;/code&gt; is like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;uwsgi:
+	socket: 0.0.0.0:3000
+	master: true
+	no-orphans: true
+	processes: 1
+	uid: root
+	gid: root
+	chdir: /code # where my django app resides in the docker container
+	env: DJANGO_SETTINGS_MODULE=xxxx # my django setting file
+	module: xxx # my wsgi module
+	buffer-size: 40960
+	enable-threads: true
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note the &lt;code&gt;socket&lt;/code&gt; here, it&amp;rsquo;s bound to port 3000 which consistent with nginx configuration.&lt;/p&gt;
+
+&lt;p&gt;Finally, set &lt;code&gt;my.test-site.local&lt;/code&gt; and &lt;code&gt;my2.test-site.local&lt;/code&gt; both to &lt;code&gt;localhost&lt;/code&gt; in hosts settings. Then we have two sites for one ip, and runs perfectly fast.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Solve pylint import error in Django</title>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Docker on Notes of wgundamj44</title>
-    <link>http://wgundamj44.github.io/tags/docker/</link>
-    <description>Recent content in Docker on Notes of wgundamj44</description>
+    <title>Uwsgi on Notes of wgundamj44</title>
+    <link>http://wgundamj44.github.io/tags/uwsgi/</link>
+    <description>Recent content in Uwsgi on Notes of wgundamj44</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 30 Nov 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://wgundamj44.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://wgundamj44.github.io/tags/uwsgi/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Use Nginx to manage django sites in docker</title>
@@ -219,141 +219,6 @@ upstream uwsgicluster {
 &lt;p&gt;Note the &lt;code&gt;socket&lt;/code&gt; here, it&amp;rsquo;s bound to port 3000 which consistent with nginx configuration.&lt;/p&gt;
 
 &lt;p&gt;Finally, set &lt;code&gt;my.test-site.local&lt;/code&gt; and &lt;code&gt;my2.test-site.local&lt;/code&gt; both to &lt;code&gt;localhost&lt;/code&gt; in hosts settings. Then we have two sites for one ip, and runs perfectly fast.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>A try on docker</title>
-      <link>http://wgundamj44.github.io/post/2015-01-15-try-on-docker/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://wgundamj44.github.io/post/2015-01-15-try-on-docker/</guid>
-      <description>
-
-&lt;p&gt;Recently(Last year..) I tried docker a little bit. My Goal was to create my deveopment enviroment of MEAN.js.&lt;/p&gt;
-
-&lt;h1 id=&#34;failure:8d145bb3828fd33a2b211fa2e911eb8b&#34;&gt;Failure..&lt;/h1&gt;
-
-&lt;p&gt;At first I installed docker on my CentOS 6.5, and miserably failed. It kept telling me that my linux kernal version is not right,
-althoug i&amp;rsquo;ve already updated it to latest version.&lt;/p&gt;
-
-&lt;p&gt;So I had to install a new VM with CentOS 7.0&lt;/p&gt;
-
-&lt;h1 id=&#34;pull-the-images:8d145bb3828fd33a2b211fa2e911eb8b&#34;&gt;Pull the images&lt;/h1&gt;
-
-&lt;p&gt;Here is what I need: An Image with nodejs and an Image with MongoDB. I downloaded them from offical repository so there&amp;rsquo;s nothing to say.&lt;/p&gt;
-
-&lt;h1 id=&#34;configuration:8d145bb3828fd33a2b211fa2e911eb8b&#34;&gt;Configuration&lt;/h1&gt;
-
-&lt;p&gt;This is the key part.&lt;/p&gt;
-
-&lt;p&gt;First, I need to share the source code between host and docker host. I found that -v option can specify folder sharing.&lt;/p&gt;
-
-&lt;p&gt;Second, I don&amp;rsquo;t what the data of mongo be left inside docker host. Again, -v can make /data/db of mongo be a folder in real host.&lt;/p&gt;
-
-&lt;p&gt;Third, the docker process of nodejs should be able to see mongo process. &amp;ndash;link can solve this. To use link, docker of mongo should have a name first.&lt;/p&gt;
-
-&lt;p&gt;Forth, in MEAN.js, it defaults to access localhost for mongo, which doesn&amp;rsquo;t exist here. So I need to modify it so that it accepts DB_HOST enviroment variable as its mongo host, and &amp;ndash;env option of docker can set evrioment variables.&lt;/p&gt;
-
-&lt;h1 id=&#34;conclusion:8d145bb3828fd33a2b211fa2e911eb8b&#34;&gt;Conclusion&lt;/h1&gt;
-
-&lt;p&gt;The above consideratin sums up to be the commands as follows:&lt;/p&gt;
-
-&lt;p&gt;To start mongodb&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;docker run -it -d -p 27017:27017 -v /develop/mongo_data/:/data/db --name mongodb dockerfile/mongodb mongod
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To start mean.js&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;docker run -it --rm -p 8081:8081 -v /develop/node/testProject/:/home/meanjs --link mongodb:mongo --name meanjs --env DB_HOST=mongo dockerfile/meanjs forever -w server.js
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Set up PHP enviroment with Docker</title>
-      <link>http://wgundamj44.github.io/post/2015-04-15-set-php-enviroment-with-docker/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://wgundamj44.github.io/post/2015-04-15-set-php-enviroment-with-docker/</guid>
-      <description>
-
-&lt;p&gt;Set up PHP develop eviroment with docker.&lt;/p&gt;
-
-&lt;h2 id=&#34;docker-image:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;docker image&lt;/h2&gt;
-
-&lt;p&gt;I created my image based on offical 5.5-apache image, with following:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;FROM php:5.5-apache
-
-# install wget and unzip in order to install php extensions from github
-RUN apt-get update &amp;amp;&amp;amp; apt-get install -y wget unzip
-
-
-# enable mbstirng as we can&#39;t controll the compilation flag of php
-RUN docker-php-ext-install mbstring
-
-# install mcrypt and pdo
-RUN apt-get update &amp;amp;&amp;amp; apt-get install -y libmcrypt-dev \
-    &amp;amp;&amp;amp; docker-php-ext-install mcrypt \
-    &amp;amp;&amp;amp; docker-php-ext-install mysql
-
-# install redis extension
-WORKDIR /root
-RUN wget https://github.com/nicolasff/phpredis/archive/2.2.5.zip \
-    &amp;amp;&amp;amp; unzip 2.2.5.zip \ 
-    &amp;amp;&amp;amp; mv phpredis-2.2.5 /usr/src/php/ext/phpredis \
-    &amp;amp;&amp;amp; docker-php-ext-install phpredis
-#RUN cp /usr/local/etc/php/conf.d/ext-phpredis-2.2.5.ini /etc/php5/mods-available/redis.ini
-
-# install timecop
-RUN wget https://github.com/hnw/php-timecop/archive/master.zip \
-    &amp;amp;&amp;amp; unzip master.zip \
-    &amp;amp;&amp;amp; mv php-timecop-master /usr/src/php/ext/php-timecop \
-    &amp;amp;&amp;amp; docker-php-ext-install php-timecop
-
-RUN mkdir /var/log/httpd/
-RUN mkdir -p /var/log/ci &amp;amp;&amp;amp; chmod 777 /var/log/ci
-COPY load.conf /etc/apache2/mods-enabled/
-COPY klab.conf /etc/apache2/sites-enabled/
-COPY klab_mainte.conf /etc/apache2/sites-enabled/
-COPY php.ini /usr/local/etc/php/
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;mbstring, mcrypt, mysql, redis, timecop is the php extension needed by my project.
-Note that they should be installed through offically provided docker-php-ext-install command.
-load.conf contains configure that enables apache module needed by my project, like mod_rewrite.&lt;/p&gt;
-
-&lt;p&gt;klab.conf is the directory configure for my site.&lt;/p&gt;
-
-&lt;p&gt;klab_mainte.conf contains the rewrite rules for my site.&lt;/p&gt;
-
-&lt;p&gt;php.ini is for php configuration, here I only edited the error level, enabled short tags, set timezone.&lt;/p&gt;
-
-&lt;h2 id=&#34;docker-composer:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;docker composer&lt;/h2&gt;
-
-&lt;p&gt;As I need redis container, so I used docker composer with:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;web:
-  build: .
-  ports:
-   - &amp;quot;8080:80&amp;quot;
-  volumes:
-   - klab-php:/klab
-  links:
-   - redis
-redis:
-  image: redis
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I used &lt;strong&gt;volumes&lt;/strong&gt; to share my source code with container. The strange thing is that, when I used docker1.4, volumes won&amp;rsquo;t work
-with docker-composer, it just won&amp;rsquo;t mount. But start container directly with -v will work. It is solved as I upgrade my docker to
-1.5.&lt;/p&gt;
-
-&lt;h2 id=&#34;start:c3dd6ac30f5bedccb58bb4297dbd9332&#34;&gt;Start&lt;/h2&gt;
-
-&lt;p&gt;&lt;code&gt;docker-composer up -d&lt;/code&gt;, here we go!&lt;/p&gt;
 </description>
     </item>
     
